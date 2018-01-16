@@ -196,7 +196,9 @@ public class JiblScpTo {
 //			int foo = JOptionPane.showOptionDialog(null, str, "Warning", JOptionPane.DEFAULT_OPTION,
 //					JOptionPane.WARNING_MESSAGE, null, options, options[0]);
 //			return foo == 0;
-			return true;
+//			return true;
+			return false;
+			
 		}
 
 		String passwd;

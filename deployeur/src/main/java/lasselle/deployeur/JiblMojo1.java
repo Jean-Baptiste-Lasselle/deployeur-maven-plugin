@@ -92,8 +92,8 @@ public class JiblMojo1 extends AbstractMojo {
 	}
 	
 	private void copierFihierWarVersCible() {
-//		JiblScpTo.faisCopie(this.cheminProjet + "/" + this.nomFichierWAR, this.nomFichierWAR, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
-		JiblSftp.faisCopie(this.cheminProjet + "/" + this.nomFichierWAR, this.nomFichierWAR, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
+		JiblScpTo.faisCopie(this.cheminProjet + "/" + this.nomFichierWAR, this.nomFichierWAR, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
+//		JiblSftp.faisCopie(this.cheminProjet + "/" + this.nomFichierWAR, this.nomFichierWAR, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 		
 	}
 	private void executeLeDeploiement() {
