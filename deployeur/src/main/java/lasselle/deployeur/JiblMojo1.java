@@ -31,11 +31,11 @@ public class JiblMojo1 extends AbstractMojo {
 	/**
 	 * LEs paramètres du goal maven
 	 */
-	@Parameter(alias = "nom-conteneur-docker", property = "nom-conteneur-docker", required = true)
+	@Parameter(alias = "nom-conteneur-docker-srv-jee", property = "nom-conteneur-docker-srv-jee", required = true)
 	String nomConteneurDocker= null;
-	@Parameter(alias = "ip-cible", property = "ip-cible", required = true)
+	@Parameter(alias = "ip-cible-srv-jee", property = "ip-cible-srv-jee", required = true)
 	String adresseIPcibleDeploiement= null;
-	@Parameter(alias = "no-port-srv-jee-cible", property = "no-port-srv-jee-cible", required = true)
+	@Parameter(alias = "no-port-cible-srv-jee", property = "no-port-cible-srv-jee", required = true)
 	String numeroPortTomcat = null;
 	@Parameter(alias = "lx-user", property = "lx-user",defaultValue = "lauriane")
 	// aller chercher le username et le pwd
@@ -140,7 +140,7 @@ public class JiblMojo1 extends AbstractMojo {
 		File repoDIR = new File(cheminRepo);
 		// je le détruis, et le re-créée
 		try {
-			FileUtils.deleteDirectory(repoDIR);
+			FileUtils.forceDelete(repoDIR);
 		} catch (IOException e2) {
 			System.out.println(" JIBL + pb au delete initla du répertoire du repo [" + cheminRepo + "]");
 			e2.printStackTrace();
@@ -247,13 +247,17 @@ public class JiblMojo1 extends AbstractMojo {
 		//
 		// --
 		// je détruis, le repo, et le re-crrées par git clone.
-		JiblExec.executeCetteCommande("rm -rf "+ this.NOM_REPO_GIT_ASSISTANT, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
+		JiblExec.executeCetteCommande("rm -rf ./"+ this.NOM_REPO_GIT_ASSISTANT, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 		// 
 		JiblExec.executeCetteCommande("git clone \""+ this.URL_REPO_GIT_ASSISTANT + "\"", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 	}
 	private void executeLeDeploiement() {
 		
+		// je supprime les autres war déployés
+		JiblExec.executeCetteCommande("sudo docker exec " + this.nomConteneurDocker + " /bin/bash -c \"rm -rf /usr/local/tomcat/webapps/*\"", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
+		// je copie le war à déployer dans le repertoire webapps
 		JiblExec.executeCetteCommande("sudo docker cp "+ this.NOM_REPO_GIT_ASSISTANT + "/"+ this.nomFichierWAR + " " + this.nomConteneurDocker + ":/usr/local/tomcat/webapps", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
+		// je re-démarre le  conteneur entier, au lieu d'un process dans le conteneur.
 		JiblExec.executeCetteCommande("sudo docker restart " + this.nomConteneurDocker, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 		
 	}
