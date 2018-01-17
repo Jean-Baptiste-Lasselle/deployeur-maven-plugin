@@ -35,6 +35,8 @@ public class JiblMojo1 extends AbstractMojo {
 	String nomConteneurDocker= null;
 	@Parameter(alias = "ip-cible", property = "ip-cible", required = true)
 	String adresseIPcibleDeploiement= null;
+	@Parameter(alias = "no-port-srv-jee-cible", property = "no-port-srv-jee-cible", required = true)
+	String numeroPortTomcat = null;
 	@Parameter(alias = "lx-user", property = "lx-user",defaultValue = "lauriane")
 	// aller chercher le username et le pwd
 	String SSHusername = null;
@@ -52,6 +54,9 @@ public class JiblMojo1 extends AbstractMojo {
 	private String cheminProjet;
 	@Parameter(defaultValue = "${project.artifactId}-${project.version}.war")
 	private String nomFichierWAR;
+	@Parameter(defaultValue = "${project.artifactId}-${project.version}")
+	private String urlContextPathAppli;
+	
 	
 	private File fichierWAR = new File(cheminProjet + "/" + nomFichierWAR);
 	
@@ -62,6 +67,8 @@ public class JiblMojo1 extends AbstractMojo {
 	 */
 	@Parameter(alias = "url-repo-git-deploiements", property = "url-repo-git-deploiements", defaultValue = "https://github.com/Jean-Baptiste-Lasselle/lauriane-deploiement.git")
 	private String URL_REPO_GIT_ASSISTANT;
+	@Parameter(alias = "nom-repo-git-deploiements", property = "nom-repo-git-deploiements", defaultValue = "lauriane-deploiement")
+	private String NOM_REPO_GIT_ASSISTANT; // lauriane-deploiement
 	@Parameter(alias = "git-username", property = "git-username", required=true)
 	String GITusername = null;
 	@Parameter(alias = "git-userpwd", property = "git-userpwd", required=true)
@@ -107,16 +114,13 @@ public class JiblMojo1 extends AbstractMojo {
 		// donc après, je n'ai qu'à exécuter mon scp en ligne de commandes tout simplement
 		
 		copierFihierWarVersCible();
-		System.out.println(" +++	COPIE FAITE DANS CONTENEUR ");
-		try {
-			System.in.read();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		System.out.println(" +++	COPIE DU WAR FAITE DANS CONTENEUR " + this.nomConteneurDocker);
 		executeLeDeploiement();
-		System.out.println(" +++	DEPLOIEMENT TERMINE DANS CONTENEUR ");
+		System.out.println(" +++	DEPLOIEMENT TERMINE DANS CONTENEUR " + this.nomConteneurDocker);
+		System.out.println(" +++	++++++++++++++++++++++++++++++++++++++++++ ");
+		System.out.println(" +++	Votre application est disponible à l'URL:");
+		System.out.println(" +++		[http://" + this.adresseIPcibleDeploiement + ":"+ this.numeroPortTomcat + "/" +this.urlContextPathAppli + "]");
+		
 		
 	}
 	
@@ -238,14 +242,18 @@ public class JiblMojo1 extends AbstractMojo {
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
 		
 		
-		// 2./ je commance par faire un commit du war créé par le projet, vers
+		// 2./ je  fais le git clone du war que je veux déployer
 		//     le repo git "https://github.com/Jean-Baptiste-Lasselle/lauriane-deploiement.git"
+		//
+		// --
+		// je détruis, le repo, et le re-crrées par git clone.
+		JiblExec.executeCetteCommande("rm -rf "+ this.NOM_REPO_GIT_ASSISTANT, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 		// 
 		JiblExec.executeCetteCommande("git clone \""+ this.URL_REPO_GIT_ASSISTANT + "\"", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 	}
 	private void executeLeDeploiement() {
 		
-		JiblExec.executeCetteCommande("sudo docker cp "+ this.nomFichierWAR + " " + this.nomConteneurDocker + ":/usr/local/tomcat/webapps", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
+		JiblExec.executeCetteCommande("sudo docker cp "+ this.NOM_REPO_GIT_ASSISTANT + "/"+ this.nomFichierWAR + " " + this.nomConteneurDocker + ":/usr/local/tomcat/webapps", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 		JiblExec.executeCetteCommande("sudo docker restart " + this.nomConteneurDocker, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 		
 	}
