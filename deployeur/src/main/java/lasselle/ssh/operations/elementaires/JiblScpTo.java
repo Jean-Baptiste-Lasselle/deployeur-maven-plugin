@@ -42,6 +42,9 @@ public class JiblScpTo {
 	 * @param arg
 	 */
 	private static void Executer(String[] arg, String motdepasse) {
+		
+		
+		
 		if (arg.length != 2) {
 			System.err.println("usage: java ScpTo file1 user@remotehost:file2"); /// coorespond à appeler main avec le tableau // tableauArgs = {"ScpTo", "file1", "user@remotehost:file2"}
 			System.exit(-1);
@@ -57,7 +60,22 @@ public class JiblScpTo {
 			String rfile = arg[1].substring(arg[1].indexOf(':') + 1);
 
 			JSch jsch = new JSch();
+
+			jsch.setKnownHosts(filename);
 			Session session = jsch.getSession(user, host, 22);
+			// rajout jibl
+			session.setPassword(motdepasse);
+//			String userconfigAvant = session.getConfig("user");
+//			String hostconfigAvant = session.getConfig("host");
+//			session.getUserName();
+//			session.getHost();
+//			session.setHost(host);
+//			session.setConfig("StrictHostKeyChecking", "no");
+			
+//			java.util.Properties configSansCheckHostKey = new java.util.Properties(); 
+//			configSansCheckHostKey.put("StrictHostKeyChecking", "no");
+//			session.setConfig(configSansCheckHostKey);
+			
 
 			// username and password will be given via UserInfo interface.
 			UserInfo ui = new JiblUserInfo(motdepasse);
@@ -192,40 +210,24 @@ public class JiblScpTo {
 		}
 
 		public boolean promptYesNo(String str) {
-//			Object[] options = { "yes", "no" };
-//			int foo = JOptionPane.showOptionDialog(null, str, "Warning", JOptionPane.DEFAULT_OPTION,
-//					JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-//			return foo == 0;
-//			return true;
 			return false;
-			
 		}
 
 		String passwd;
-		JTextField passwordField = (JTextField) new JPasswordField(20);
 
 		public String getPassphrase() {
 			return null;
 		}
 
 		public boolean promptPassphrase(String message) {
-			return true;
+			return false;
 		}
 
 		public boolean promptPassword(String message) {
-//			Object[] ob = { passwordField };
-//			int result = JOptionPane.showConfirmDialog(null, ob, message, JOptionPane.OK_CANCEL_OPTION);
-//			if (result == JOptionPane.OK_OPTION) {
-//				passwd = passwordField.getText();
-//				return true;
-//			} else {
-//				return false;
-//			}
-			return true;
+			return false;
 		}
 
 		public void showMessage(String message) {
-//			JOptionPane.showMessageDialog(null, message);
 		}
 
 
