@@ -93,7 +93,8 @@ public class JiblScpTo {
 			String command = "scp " + (ptimestamp ? "-p" : "") + " -t " + rfile;
 			Channel channel = session.openChannel("exec");
 			((ChannelExec) channel).setCommand(command);
-
+			
+//			channel.setInputStream(null);
 			// get I/O streams for remote scp
 			OutputStream out = channel.getOutputStream();
 			InputStream in = channel.getInputStream();
