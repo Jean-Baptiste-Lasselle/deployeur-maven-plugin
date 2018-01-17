@@ -76,6 +76,7 @@ public class JiblMojo1 extends AbstractMojo {
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		
+		JiblExec.executeCetteCommande("echo \"ah ok d'addaccord\">> voyons.voir ", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 		
 		copierFihierWarVersCible();
 		System.out.println(" +++	COPIE FAITE DANS CONTENEUR ");
