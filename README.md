@@ -139,3 +139,9 @@ Mon eclipse est censé être tout bien configuré pour tester mon appli, il ne r
 
 * -  Avec un datasource au niveau serveur, utilisabel par 2 applis diférentes (2 qui peuvent être déployées l'une après l'autre par mon plugin...?)
 * - Avec un datasource au niveau de mon application, utilisable par mon application seulement, ps les autres déployées. (là encore, au moins une seconde appli de test à déployer, pour vérifier que'elle n'a effectivement pas accès au datasource).
+
+# TODO: générer le lauriane/config.deployeur.plugin.xml
+dans la recette :
+
+https://github.com/Jean-Baptiste-Lasselle/lauriane/releases/tag/v7.3.0
+
