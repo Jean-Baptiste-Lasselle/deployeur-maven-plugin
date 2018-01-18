@@ -80,7 +80,9 @@ public class JiblExec {
 					System.out.print(new String(tmp, 0, i));
 				}
 				if (channel.isClosed()) {
-					System.out.println("exit-status: " + channel.getExitStatus());
+					System.out.println("Commande SSH exécutée : [" + commandeAexecuter + "]"); // commandeAexecuter
+					System.out.println("sortie de l'exécution SHH: [exit-status=" + channel.getExitStatus()+ "]"); // commandeAexecuter
+					
 					break;
 				}
 				try {
