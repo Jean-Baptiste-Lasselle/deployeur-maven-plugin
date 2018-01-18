@@ -25,6 +25,17 @@ Vous noterez les valeurs des paramètres suivants, (cf. ModeDemploi.pdf, et "mon
 * le mot de passe de l'utilisateur Linux, opérateur pour le plugin:
 
            <lx-pwd></lx-pwd>
+* nom d'utilisateur et mot de passe linux pour l'opérateur maven plguin
+  sont donnés à la fin de la construction de la cible de déploiement, par la sortie standard:
+  
+  	  --------------------------------------------------------  
+	  --- De plus, l'utilisateur linux que votre plugin  
+	  --- doit utiliser est: 
+	  --- 				 
+	  --- 				nom d'utilisateur linux: $MVN_PLUGIN_OPERATEUR_LINUX_USER_NAME
+	  --- 				 
+	  --- 				mot de passe: $MVN_PLUGIN_OPERATEUR_LINUX_USER_PWD
+	  --- 				 
 
 Ces paramètres et d'autres seront à utiliser pour la configuration du deployeur-maven-plugin, dans le pom.xml d'une application web que nous voulons déployer, avec les balises indiquées ci-dessus.
 
