@@ -10,7 +10,8 @@ https://github.com/Jean-Baptiste-Lasselle/lauriane
 en suivant simplement les intructions https://github.com/Jean-Baptiste-Lasselle/lauriane/blob/master/ModeDemploi.pdf
 Vous noterez les valeurs des paramètres suivants, (cf. ModeDemploi.pdf, et "monter-cible-deploiement.sh") :
 
-* le nom du conteneur embarquant le serveur jee: <nom-conteneur-docker-srv-jee></nom-conteneur-docker-srv-jee>
+* le nom du conteneur embarquant le serveur jee: 
+           <nom-conteneur-docker-srv-jee></nom-conteneur-docker-srv-jee>
 * l'adresse IP utilisée par le serveur Jee: <ip-cible-srv-jee></ip-cible-srv-jee>
 * le numéro de port utilisé par le sereur Jee: <no-port-cible-srv-jee></no-port-cible-srv-jee>
 * le nom de l'utilisateur Linux, opérateur pour le plugin: <lx-user></lx-user>
