@@ -45,7 +45,7 @@ Toutes ces valeurs sont rassemblées dans un fichier d'extrait xml généré par
    
    Il faut enfin savoir que ce plugin, pour réaliser les déploiements d'applications web jee, utilise deux éléments:
    
-   * un repo git de "déploiement": dans ce repo, on versionne simplement le fichier \*.war à déployer
+   * un repo git de "déploiement": dans ce repo, on versionne simplement le fichier \*.war à déployer. Ce repo permettra dans une évolution future du plugin, de déployer plusieurs versions de l'application web simultanément. Cette évolution pourra utiliser le plugin maven "git-commit-id", pour inclure le numéro de commit de code source de l'aplication web, dans son nom de fichier d'artefact \*.war
     
    * un répertoire local à la machine exécutant l'IDE, ce répertoire ne devant pas être utilisé par votre IDE, il sera utilisé comme un repo lolcal git par le plugin maven, afin de faire des commit &&  push des wars, à chaque build.
    
