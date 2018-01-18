@@ -19,13 +19,13 @@ Vous noterez les valeurs des paramètres suivants, (cf. ModeDemploi.pdf, et "mon
 * le numéro de port utilisé par le sereur Jee:
 
            <no-port-cible-srv-jee></no-port-cible-srv-jee>
-* le nom de l'utilisateur Linux, opérateur pour le plugin:
+* le nom de l'utilisateur Linux, opérateur pour le plugin maven:
        
            <lx-user></lx-user>
-* le mot de passe de l'utilisateur Linux, opérateur pour le plugin:
+* le mot de passe de l'utilisateur Linux, opérateur pour le plugin maven :
 
            <lx-pwd></lx-pwd>
-* nom d'utilisateur et mot de passe linux pour l'opérateur maven plguin
+* nom d'utilisateur et mot de passe de l'utilisateur linux opérateur pour le plguin maven
   sont donnés à la fin de la construction de la cible de déploiement, par la sortie standard:
   
   	  --------------------------------------------------------  
