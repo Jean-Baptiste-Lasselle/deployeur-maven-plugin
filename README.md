@@ -26,7 +26,7 @@ Vous noterez les valeurs des paramètres suivants, (cf. ModeDemploi.pdf, et "mon
 
            <lx-pwd></lx-pwd>
 * nom et mot de passe de l'utilisateur linux opérateur pour le plguin maven
-  sont donnés à la fin de la construction de la cible de déploiement, par la sortie standard:
+  sont donnés à la fin de la construction de la cible de déploiement, par la sortie standard, sous la forme:
   
   	  --------------------------------------------------------  
 	  --- De plus, l'utilisateur linux que votre plugin  
