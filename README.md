@@ -10,9 +10,9 @@ https://github.com/Jean-Baptiste-Lasselle/lauriane
 en suivant simplement les intructions https://github.com/Jean-Baptiste-Lasselle/lauriane/blob/master/ModeDemploi.pdf
 Vous noterez les valeurs des paramètres suivants, (cf. ModeDemploi.pdf, et "monter-cible-deploiement.sh") :
 
-*nom-conteneur-docker-srv-jee
-*ip-cible-srv-jee
-*no-port-cible-srv-jee
+**nom-conteneur-docker-srv-jee
+**ip-cible-srv-jee
+**no-port-cible-srv-jee
 
 
 # 3. Utiliser le plugin "deployeur-maven-plugin" pour déployer l'application web exemple
