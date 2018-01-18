@@ -36,9 +36,8 @@ Toutes ces valeurs sont rassemblées dans un fichier d'extrait xml généré par
 
 ## 2. Utiliser le plugin "deployeur-maven-plugin" pour déployer l'application web exemple
 
- ### - Avant d'exécuter le build maven de l'application web exemple, il
-   nous faut donc le plugin "deployeur-maven-plugin" dans notre
-   repo maven local. 
+ ### - Avant d'exécuter le build maven de l'application web exemple, il nous faut le plugin "deployeur-maven-plugin"
+   dans notre repo maven local. 
    Pour cela, nous allons cloner le code source du plugin, builder le plugin en l'installant dans le repo maven local:
    
               git clone https://github.com/Jean-Baptiste-Lasselle/deployeur-maven-plugin.git
@@ -53,14 +52,12 @@ Toutes ces valeurs sont rassemblées dans un fichier d'extrait xml généré par
 
               git clone https://github.com/Jean-Baptiste-Lasselle/lauriane-deployeur-test.git
 
- ### - Puis, avec Eclipse, ou votre IDE, importez le projet maven "Existing Maven Project...", pour créer un projet eclipse
-dans votre IDE.
+ ### - Puis, avec Eclipse, ou votre IDE, importez le projet maven "Existing Maven Project...", pour créer un projet eclipse dans votre IDE.
 
               Utilisateurs d'Eclipse: faîtes un "Maven Update".
 
       
- ### - Avant d'exécuter le build maven de l'application web exemple, il
-   nous faut enfin éditer la configuration du plugin dans le fichier:
+ ### - Avant d'exécuter le build maven de l'application web exemple, il nous faut enfin éditer la configuration du plugin dans le fichier:
    
              ./lauriane-deployeur-test/jiblWebappTest/pom.xml
    
