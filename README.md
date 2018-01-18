@@ -105,7 +105,8 @@ Dans ce fichier, la configuration typique contient les éléments suivants:
 	
 				<!--  COMPOSANT SGBDR -->
     
-				<!-- Cette configuration pourrait être utilisée pour mettre la BDD dans un état particulier, 					     souhaité pour le déploiement puis laisser un script permettant de faire revenir la BDD 
+				<!-- Cette configuration pourrait être utilisée pour mettre la BDD dans un état particulier,
+				     souhaité pour le déploiement puis laisser un script permettant de faire revenir la BDD 
 				     dans son état initial, après la fin des tests.
 				-->
 				<!-- Si le script de retour à l'état initial n'existe pas, il est créé en
