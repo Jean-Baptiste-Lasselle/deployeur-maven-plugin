@@ -58,7 +58,7 @@ Toutes ces valeurs sont rassemblées dans un fichier d'extrait xml généré par
    
    * un "repo git de déploiement": Vous devrez créer cerepo. Dans ce repo, le plugin versionne simplement le fichier \*.war à déployer. Ce repo permettra dans une évolution future du plugin, de déployer plusieurs versions de l'application web simultanément. Cette évolution pourra utiliser le plugin maven "git-commit-id", pour inclure le numéro de commit de code source de l'aplication web, dans son nom de fichier d'artefact \*.war
     
-   * un répertoire local à la machine exécutant l'IDE, il sera utilisé comme un repo local git par le plugin maven, afin de faire des commit &&  push des \*.wars produits à chaque build. À chaque build de l'application web, ce plugin commit et push le fichier \*.war produit, sur le "repo git de déploiement". Ce répertoire ne devant pas être utilisé par votre IDE, afin d'éviter conflits entre les actions git du plugin maven, et votre IDE. Ce répertoire est détruit et re-créé à chaque invocation du plugin.
+   * un répertoire local à la machine exécutant l'IDE, il sera utilisé comme un repo local git par le plugin maven, afin de faire des commit &&  push des \*.wars produits à chaque build. À chaque build de l'application web, ce plugin commit et push le fichier \*.war produit, sur le "repo git de déploiement". Ce répertoire ne devant pas être utilisé par votre IDE, afin d'éviter conflits entre les actions git du plugin maven, et votre IDE. Ce répertoire est détruit et re-créée à chaque invocation du plugin.
   
    
  ### - Sur votre poste de dev., faîtes un git clone du repo contenant l'application web exemple à déployer:
