@@ -123,7 +123,9 @@ public class JiblMojo1 extends AbstractMojo {
 		
 		
 	}
-	
+//	@Parameter(alias = "repertoire-repo-git-local", property = "repertoire-repo-git-local", defaultValue = "${project.build.directory}/tempmvnautobuild")
+	@Parameter(alias = "repertoire-repo-git-local", property = "repertoire-repo-git-local", required=true)
+	String cheminRepoGitLocalDeTravail = null;
 	private void copierFihierWarVersCible() {
 //		JiblScpTo.faisCopie(this.cheminProjet + "/" + this.nomFichierWAR, this.nomFichierWAR, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 //		JiblSftp.faisCopie(this.cheminProjet + "/" + this.nomFichierWAR, this.nomFichierWAR, adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
@@ -136,11 +138,13 @@ public class JiblMojo1 extends AbstractMojo {
 		// 
 		// => Je créée un nouveau repo git, séparé, et dans C:\moi\mes_repos_git
 		File reposDIR = new File("C:\\moi\\mes_repos_git");
-		String cheminRepo = "C:\\moi\\mes_repos_git\\tempmvnautobuild";
+		String cheminRepo = this.cheminRepoGitLocalDeTravail;
 		File repoDIR = new File(cheminRepo);
 		// je le détruis, et le re-créée
 		try {
-			FileUtils.forceDelete(repoDIR);
+			if (repoDIR.exists()) {
+				FileUtils.forceDelete(repoDIR);
+			}
 		} catch (IOException e2) {
 			System.out.println(" JIBL + pb au delete initla du répertoire du repo [" + cheminRepo + "]");
 			e2.printStackTrace();
