@@ -118,3 +118,10 @@ Dans ce fichier, la configuration typique contient les éléments suivants:
 			</configuration>
 	</execution>
     </executions>
+
+# TODO
+
+Mon eclipse est censé être tout bien configuré pour tester mon appli, il ne reste plus qu'à ajouter tout ce qui relève du datasourde à configurer de 2 manières:
+
+* -  Avec un datasource au niveau serveur, utilisabel par 2 applis diférentes (2 qui peuvent être déployées l'une après l'autre par mon plugin...?)
+* - Avec un datasource au niveau de mon application, utilisable par mon application seulement, ps les autres déployées. (là encore, au moins une seconde appli de test à déployer, pour vérifier que'elle n'a effectivement pas accès au datasource).
