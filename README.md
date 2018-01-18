@@ -44,7 +44,9 @@ Toutes ces valeurs sont rassemblées dans un fichier d'extrait xml généré par
               mvn clean install -up -U -f deployeur-maven-plugin/deployeur/pom.xml
    
    Il faut enfin savoir que ce plugin, pour réaliser les déploiements d'applications web jee, utilise deux éléments:
+   
     * un repo git de "déploiement": dans ce repo, on versionne simplement le fichier \*.war à déployer
+    
     * un répertoire local à la machine exécutant l'IDE, ce répertoire ne devant pas être utilisé par votre IDE, il sera utilisé comme un repo lolcal git par le plugin maven, afin de faire des commit &&  push des wars, à chaque build.
       
    
