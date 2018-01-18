@@ -137,8 +137,9 @@ Dans ce fichier, la configuration typique contient les éléments suivants:
 
 Mon eclipse est censé être tout bien configuré pour tester mon appli, il ne reste plus qu'à ajouter tout ce qui relève du datasourde à configurer de 2 manières:
 
-* -  Avec un datasource au niveau serveur, utilisabel par 2 applis diférentes (2 qui peuvent être déployées l'une après l'autre par mon plugin...?)
-* - Avec un datasource au niveau de mon application, utilisable par mon application seulement, ps les autres déployées. (là encore, au moins une seconde appli de test à déployer, pour vérifier que'elle n'a effectivement pas accès au datasource).
+* -  Avec un datasource au niveau serveur, utilisabel par 2 applis diférentes (2 qui peuvent être déployées l'une après l'autre par mon plugin...?). Modifications à faire au niveau de mon plugin maven (donc ce repo git), pour peermettre de faire une opération de mise à jour de la configuration du serveur jee. À faire à l'aide de fichiers template remplis avec les infos du datasource, et copiés avec docker cp pour remplacer les ficheirs de configuration serveur (standalone.xml pour wildfly, server.xml pour tomcat...)
+
+* - Avec un datasource au niveau de mon application, utilisable par mon application seulement, ps les autres déployées. (là encore, au moins une seconde appli de test à déployer, pour vérifier que'elle n'a effectivement pas accès au datasource). Modifications à faire dans https://github.com/Jean-Baptiste-Lasselle/lauriane-deployeur-test
 
 # TODO: générer le lauriane/config.deployeur.plugin.xml
 dans la recette :
