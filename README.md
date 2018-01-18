@@ -10,10 +10,15 @@ https://github.com/Jean-Baptiste-Lasselle/lauriane
 en suivant simplement les intructions https://github.com/Jean-Baptiste-Lasselle/lauriane/blob/master/ModeDemploi.pdf
 Vous noterez les valeurs des paramètres suivants, (cf. ModeDemploi.pdf, et "monter-cible-deploiement.sh") :
 
-* nom-conteneur-docker-srv-jee
-* ip-cible-srv-jee
-* no-port-cible-srv-jee
-* et bien d'autres paramètres qui seront à utilsier pour la configuration du deployeur-maven-plugin
+* le nom du conteneur embarquant le serveur jee: <nom-conteneur-docker-srv-jee></nom-conteneur-docker-srv-jee>
+* l'adresse IP utilisée par le serveur Jee: <ip-cible-srv-jee></ip-cible-srv-jee>
+* le numéro de port utilisé par le sereur Jee: <no-port-cible-srv-jee></no-port-cible-srv-jee>
+* le nom de l'utilisateur Linux, opérateur pour le plugin: <lx-user></lx-user>
+* le mot de passe de l'utilisateur Linux, opérateur pour le plugin: <lx-pwd></lx-pwd>
+Ces paramètres et d'autres seront à utilsier pour la configuration du deployeur-maven-plugin, dans le pom.xml d'une application web que nous voulons déployer, avec les balises indiquées ci-dessus.
+Toutes ces valeurs sont rassemblées dans un fichier d'extrait xml généré par la construction de l'infrastructure:
+lauriane/config.deployeur.plugin.xml
+
 
 
 # 2. Utiliser le plugin "deployeur-maven-plugin" pour déployer l'application web exemple
