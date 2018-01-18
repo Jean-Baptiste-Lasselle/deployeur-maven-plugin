@@ -1,9 +1,9 @@
 # deployeur-maven-plugin
 un plugin maven pour déployer une appli web java jee dans une cible déploiement docker/tomcat
 
-## Comment utiliser le plugin?
+# Comment utiliser le plugin?
 
-# 1. construire une infrastruture cible de déploiement
+## 1. construire une infrastruture cible de déploiement
 
 Pour cela, il vous suffit d'utiliser:
 https://github.com/Jean-Baptiste-Lasselle/lauriane
@@ -34,9 +34,9 @@ Toutes ces valeurs sont rassemblées dans un fichier d'extrait xml généré par
 
 
 
-# 2. Utiliser le plugin "deployeur-maven-plugin" pour déployer l'application web exemple
+## 2. Utiliser le plugin "deployeur-maven-plugin" pour déployer l'application web exemple
 
- - Avant d'exécuter le build maven de l'application web exemple, il
+ ### - Avant d'exécuter le build maven de l'application web exemple, il
    nous faut donc le plugin "deployeur-maven-plugin" dans notre
    repo maven local. 
    Pour cela, nous allons cloner le code source du plugin, builder le plugin en l'installant dans le repo maven local:
@@ -49,22 +49,22 @@ Toutes ces valeurs sont rassemblées dans un fichier d'extrait xml généré par
     * un répertoire local à la machine exécutant l'IDE, ce répertoire ne devant pas être utilisé par votre IDE, il sera utilisé comme un repo lolcal git par le plugin maven, afin de faire des commit &&  push des wars, à chaque build.
       
    
- - Sur votre poste de dev., faîtes un git clone du repo contenant l'application web exemple à déployer:
+ ### - Sur votre poste de dev., faîtes un git clone du repo contenant l'application web exemple à déployer:
 
               git clone https://github.com/Jean-Baptiste-Lasselle/lauriane-deployeur-test.git
 
- - Puis, avec Eclipse, ou votre IDE, importez le projet maven "Existing Maven Project...", pour créer un projet eclipse
+ ### - Puis, avec Eclipse, ou votre IDE, importez le projet maven "Existing Maven Project...", pour créer un projet eclipse
 dans votre IDE.
 
               Utilisateurs d'Eclipse: faîtes un "Maven Update".
 
       
- - Avant d'exécuter le build maven de l'application web exemple, il
+ ### - Avant d'exécuter le build maven de l'application web exemple, il
    nous faut enfin éditer la configuration du plugin dans le fichier:
    
              ./lauriane-deployeur-test/jiblWebappTest/pom.xml
    
- - Exécutez ensuite, avec eclipse, le build maven de l'application web exemple:
+ ### - Exécutez ensuite, avec eclipse, le build maven de l'application web exemple:
 
               mvn clean install -up -U -f ./lauriane-deployeur-test/jiblWebappTest/pom.xml
 
