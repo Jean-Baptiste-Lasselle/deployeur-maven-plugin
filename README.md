@@ -52,7 +52,8 @@ dans votre IDE.
 
 Dans ce fichier, la configuration typique contient les éléments suivants:
 
-     <plugin>
+    <plugins>
+    <plugin>
 	<groupId>lasselle</groupId>
 	<artifactId>deployeur</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
