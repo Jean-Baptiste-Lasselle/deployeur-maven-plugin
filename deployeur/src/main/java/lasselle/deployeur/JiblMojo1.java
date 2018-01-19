@@ -56,6 +56,9 @@ public class JiblMojo1 extends AbstractMojo {
 	private String nomFichierWAR;
 	@Parameter(defaultValue = "${project.artifactId}-${project.version}")
 	private String urlContextPathAppli;
+	@Parameter(defaultValue = "${project.artifactId}")
+	private String urlSHORTContextPathAppli;
+	
 	
 	
 	private File fichierWAR = new File(cheminProjet + "/" + nomFichierWAR);
@@ -258,7 +261,9 @@ public class JiblMojo1 extends AbstractMojo {
 	private void executeLeDeploiement() {
 		
 		// je supprime les autres war déployés
-		JiblExec.executeCetteCommande("sudo docker exec " + this.nomConteneurDocker + " /bin/bash -c \"rm -rf /usr/local/tomcat/webapps/*\"", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
+		JiblExec.executeCetteCommande("sudo docker exec " + this.nomConteneurDocker + " /bin/bash -c \"rm -rf /usr/local/tomcat/webapps/" + this.urlSHORTContextPathAppli + "*\"", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
+		JiblExec.executeCetteCommande("sudo docker exec " + this.nomConteneurDocker + " /bin/bash -c \"rm -rf /usr/local/tomcat/webapps/" + this.urlSHORTContextPathAppli + "*.war\"", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
+		
 		// je copie le war à déployer dans le repertoire webapps
 		JiblExec.executeCetteCommande("sudo docker cp "+ this.NOM_REPO_GIT_ASSISTANT + "/"+ this.nomFichierWAR + " " + this.nomConteneurDocker + ":/usr/local/tomcat/webapps", adresseIPcibleDeploiement, SSHusername, SSHuserpwd);
 		// je re-démarre le  conteneur entier, au lieu d'un process dans le conteneur.
