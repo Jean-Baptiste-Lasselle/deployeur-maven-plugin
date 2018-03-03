@@ -504,6 +504,7 @@ public class DeploiementScala extends AbstractMojo {
 		    e.printStackTrace();
 		}
 		
+		// => git pull
 		
 		// => GIT ADD : je fais le add de tous les fichiers
 		try { /// pour ajouter tous les fichiers (soit disant)
