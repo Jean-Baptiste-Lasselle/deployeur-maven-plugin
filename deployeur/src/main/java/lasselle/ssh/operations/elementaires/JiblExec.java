@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.io.*;
 
 public class JiblExec {
+	
 	/**
 	 * effectue la commande que je souhaite exécuter en secure shell 
 	 * @param commandeAexecuter
@@ -20,6 +21,14 @@ public class JiblExec {
 		JiblExec.Executer(tableauArgs, AvecCeMotdepasse, commandeAexecuter);
 	}
 	private static void Executer(String[] arg, String motdepasse, String commandeAexecuter) {
+		/**
+		 * le canal de communication SSH
+		 */
+		Channel channel = null;
+		/**
+		 * la sortie faite par le système après exécution de la commande
+		 */
+		OutputStream sortieApresExectionDeLaCommande = null;
 		try {
 			JSch jsch = new JSch();
 
@@ -51,8 +60,10 @@ public class JiblExec {
 //			String command = JOptionPane.showInputDialog("Enter command", "set|grep SSH");
 //			String commandeAexecuter = JOptionPane.showInputDialog("Enter command", "set|grep SSH");
 			
-
-			Channel channel = session.openChannel("exec");
+			// donc le canal de communication SSH
+			channel = session.openChannel("exec");
+			sortieApresExectionDeLaCommande = channel.getOutputStream();
+			
 			((ChannelExec) channel).setCommand(commandeAexecuter);
 
 			// X Forwarding
@@ -94,9 +105,53 @@ public class JiblExec {
 			session.disconnect();
 		} catch (Exception e) {
 			System.out.println(e);
+		} finally {
+			// Affichage de la sortie de la sortie de la commande:
+//			lireSortieApresExecutionCommande(channel);
 		}
 	}
-
+	/**
+	 * Pour lire une sortie de commande
+	 * @param unCanalSSH
+	 */
+	private static void lireSortieApresExecutionCommande(Channel unCanalSSH){
+	
+		System.out.println("[DEBUT-sortie après exécution-]");
+	    byte[] buffer = new byte[1024];
+	
+	    try{
+	        InputStream in = unCanalSSH.getInputStream();
+	        String line = "";
+	        while (true){
+	            while (in.available() > 0) {
+	                int i = in.read(buffer, 0, 1024);
+	                if (i < 0) {
+	                    break;
+	                }
+	                line = new String(buffer, 0, i);
+	                System.out.println(line);
+	            }
+	
+	            if(line.contains("logout")){
+	                break;
+	            }
+	
+	            if (unCanalSSH.isClosed()){
+	                break;
+	            }
+	            try {
+	                Thread.sleep(1000);
+	            } catch (Exception ee){}
+	        }
+	    } catch (Exception e) {
+	        System.out.println("Une exceptionds'est produite lors de la lecture de la sortie système : "+ e.getMessage());
+//	        System.out.println();
+	        e.printStackTrace();
+	    }
+	    
+	    System.out.println("[FIN-sortie après exécution-]");
+	
+	}
 	/**
 	 * Tous les prompts doivent retrouner "true" pour que l'exécution se fasse sans interactivité à l'utilisateur.
 	 * Le mot de passe doit être fixé dans 

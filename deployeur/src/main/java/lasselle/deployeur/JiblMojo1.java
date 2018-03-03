@@ -2,7 +2,6 @@ package lasselle.deployeur;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
@@ -12,7 +11,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -20,16 +18,13 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import lasselle.ssh.operations.elementaires.JiblExec;
-import lasselle.ssh.operations.elementaires.JiblScpTo;
-//import org.apache.maven.model.Model;
-import lasselle.ssh.operations.elementaires.JiblSftp;
 
 
 @Mojo( name = "deploie")
 public class JiblMojo1 extends AbstractMojo {
 	
 	/**
-	 * LEs paramètres du goal maven
+	 * Les paramètres du goal maven
 	 */
 	@Parameter(alias = "nom-conteneur-docker-srv-jee", property = "nom-conteneur-docker-srv-jee", required = true)
 	String nomConteneurDocker= null;
@@ -66,7 +61,8 @@ public class JiblMojo1 extends AbstractMojo {
 	
 	/**
 	 * Ce plugin utilise un collaborateur:
-	 * un repo GIT qui permet le transfert des wars à dployer avec Github. Cela marche aussi avec un repo Gitlab interne.
+	 * un repo GIT qui permet le transfert des wars à dployer avec Github.
+	 * Un repo Gitlab interne peut aussi être employé.
 	 */
 	@Parameter(alias = "url-repo-git-deploiements", property = "url-repo-git-deploiements", defaultValue = "https://github.com/Jean-Baptiste-Lasselle/lauriane-deploiement.git")
 	private String URL_REPO_GIT_ASSISTANT;
