@@ -142,7 +142,7 @@ public class DeploiementScala extends AbstractMojo {
 	 * versionner un mot de passe, tros gros risque de sécurité pour els utilisateurs.
 	 */
 //	@Parameter(alias = "ops-git-userpwd", property = "ops-git-userpwd", required = false)
-	String ops_git_scm_userpwd = null;
+	String ops_scm_git_userpwd = null;
 
 	/**
 	 * ********************************************************************************************************************************
@@ -233,9 +233,16 @@ public class DeploiementScala extends AbstractMojo {
 	 * @throws MojoExecutionException lorsque le mot de passe saisi est null ou la chaîne de caractères vide
 	 */
 	private void demanderMotDePasseRepoGitCodeSource() throws MojoExecutionException {
-		this.ops_git_scm_userpwd = this.demanderMotDePassePrRepoGit(this.ops_scm_git_username, this.URL_REPO_CODE_SOURCE_APP_SCALA);
+		this.ops_scm_git_userpwd = this.demanderMotDePassePrRepoGit(this.ops_scm_git_username, this.URL_REPO_CODE_SOURCE_APP_SCALA);
 	}
 	
+	/**
+	 * Cette méthode st appelée afin de demander interactivement à l'utilisateur un nom d'utilisateur et un mot de passe pour l'authentificiation à un repo Git.
+	 * @param username
+	 * @param URL_DU_REPO
+	 * @return
+	 * @throws MojoExecutionException
+	 */
 	private String demanderMotDePassePrRepoGit(String username, String URL_DU_REPO) throws MojoExecutionException {
 		String motdepasse = null;
 		
@@ -264,6 +271,30 @@ public class DeploiementScala extends AbstractMojo {
 		
 		
 		return motdepasse;
+		
+	}
+
+	
+	private String demanderMessageDeCommitAndPushVersRepoGit(String username, String URL_DU_REPO) throws MojoExecutionException {
+		String messageDeCommitUtilisateur = null;
+		StringBuilder messageDeCommitprepapre = new StringBuilder();
+		
+		messageDeCommitUtilisateur = JOptionPane.showInputDialog("Saisissez le message de commit & push pour le code source de l'application. Si vous ne saisissez aucun message et cliquez \"OK\", un message de commit par défaut sera généré. " + " - repo: " + "[" + URL_DU_REPO + "]",
+				null);
+		if (!(messageDeCommitUtilisateur != null && messageDeCommitUtilisateur.length() >= 1)) { /// message par défaut du commit par le [deployeur-maven-plugin]
+//			StringBuilder message1 = new StringBuilder();
+			String sautLigne = System.getProperty("line.separator");
+			messageDeCommitprepapre.append("Commit du  deployeur-maven-plugin, pour déploiement de l'application ");
+			messageDeCommitprepapre.append(sautLigne);
+			messageDeCommitprepapre.append("[" + this.URL_REPO_CODE_SOURCE_APP_SCALA + "]");
+			messageDeCommitprepapre.append(sautLigne);
+			messageDeCommitprepapre.append(" déploiement réalisé par l'utilisateur linux \" "+ this.ops_git_username + "\" dans la cible de déploiement.");
+			messageDeCommitprepapre.append(sautLigne);
+			
+//			throw new MojoExecutionException(messageDeCommitprepapre.toString());
+			return messageDeCommitprepapre.toString();
+		}
+		return messageDeCommitUtilisateur;
 		
 	}
 
@@ -575,12 +606,11 @@ public class DeploiementScala extends AbstractMojo {
 
 //		monrepogit.remoteSetUrl(URLduREPO);
 //		monrepogit.remoteSetUrl()
+		RevCommit commit = null;
 		try {
-			StringBuilder messageDeCommit = new StringBuilder();
-			messageDeCommit.append("Commit du  deployeur-maven-plugin, pour déploiement de l'application ");
-			messageDeCommit.append("[" + this.URL_REPO_CODE_SOURCE_APP_SCALA + "]");
-			messageDeCommit.append(" déploiement réalisé par l'utilisateur linux \" "+ this.ops_git_username + "\" dans la cible de déploiement.");
-			RevCommit commit = repoCodeSrcAppScala.commit().setMessage(messageDeCommit.toString() ).call();
+			String messageDeCommit = this.demanderMessageDeCommitAndPushVersRepoGit(this.ops_scm_git_username, this.URL_REPO_CODE_SOURCE_APP_SCALA);
+			commit = repoCodeSrcAppScala.commit().setMessage(messageDeCommit).call();
+//			commit.get
 		} catch (GitAPIException e1) {
 			// TODO Auto-generated catch block
 			throw new MojoExecutionException(" Problème au COMMIT dans le repo local "+ "[" + this.repertoireScala + "]", e1);
@@ -605,6 +635,15 @@ public class DeploiementScala extends AbstractMojo {
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" +++++++++++++   code retour du PUSH : " + status.toString());
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
+		System.out.println(" +++++++++++++   commit id : " + commit.getId());
+		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
+		System.out.println(" +++++++++++++   commit time : " + commit.getCommitTime());
+		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
+		System.out.println(" +++++++++++++   commit message : " + commit.getShortMessage());
+		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
+				
+		
+		;
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
 	}
