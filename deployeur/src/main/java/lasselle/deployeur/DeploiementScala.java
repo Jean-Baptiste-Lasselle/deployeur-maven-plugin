@@ -2,10 +2,15 @@ package lasselle.deployeur;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+//                                     F‌ileRepositoryBuilder
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -13,13 +18,20 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.RemoteAddCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.errors.NoWorkTreeException;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import lasselle.ssh.operations.elementaires.JiblExec;
+
+//import lasselle.ssh.operations.elementaires.JiblExec;
 /**
  * ********************************************************************************************************************************
  * Récaitualtif des paramètres:
@@ -116,9 +128,9 @@ public class DeploiementScala extends AbstractMojo {
 	 * employé.
 	 */
 	@Parameter(alias = "url-repo-git-deploiements", property = "url-repo-git-deploiements", defaultValue = "https://github.com/Jean-Baptiste-Lasselle/deploiement-usine-logicielle.com")
-	private String URL_REPO_GIT_ASSISTANT;
+	private String URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS;
 	@Parameter(alias = "nom-repo-git-deploiements", property = "nom-repo-git-deploiements", defaultValue = "deploiement-usine-logicielle.com")
-	private String NOM_REPO_GIT_ASSISTANT; // lauriane-deploiement
+	private String NOM_REPO_GIT_ASSISTANT_DEPLOIEMENTS; // lauriane-deploiement
 
 	/**
 	 * L'opérateur git qui va procéder aux opérations sur le repo (assistant) de deploiement
@@ -160,6 +172,12 @@ public class DeploiementScala extends AbstractMojo {
 	@Parameter(defaultValue = "${project.build.directory}")
 	private String cheminRepBuildMaven = null;
 
+	/**
+	 * Le répertoire dans lequel le code sclala est déployé dans la cible de déploiement
+	 */
+	@Parameter(alias = "repertoire-deploiement-scala", property = "repertoire-deploiement-scala", required = true)
+	private String repertoireAppScalaDsCible;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -192,9 +210,9 @@ public class DeploiementScala extends AbstractMojo {
 		 * 3. Le repo est maitenant initialisé, je fais le commit & push vers le repo de code source 
 		 */
 		this.faireCommitAndPushCodeSource();
+		
 		/**
 		 * Je fais le commit and push vers le repo assistant du déploiement
-		 *       
 		 */
 		this.faireCommitAndPushDeploiement();
 		
@@ -202,10 +220,13 @@ public class DeploiementScala extends AbstractMojo {
 		 * 5. Avec JSch je fais le git clone dans cible de déploiement, (et s'il faut je redemarre sbt,mais à priori non) 
 		 */
 		// je détruis, le repo, et le re-crrées par git clone.
-		// PB DEPENDANCES A TRAITER ++++ >>> Donc compatible Ubuntu Uniquement SAUF SI JE FAIS UNE AUTRE DEPEDANCE UN AUTRE REPO QUI CONTIENT LA PROCEDURE DE DEPLOIEMENT DANS CIBLE DEPLOIEMNT
-		JiblExec.executeCetteCommande("rm -rf ./"+ this.NOM_REPO_GIT_ASSISTANT, adresseIPcibleDeploiement, this.ops_git_username, this.ops_git_userpwd);
-		// 
-		JiblExec.executeCetteCommande("git clone \""+ this.URL_REPO_GIT_ASSISTANT + "\"", adresseIPcibleDeploiement, this.ops_git_username, this.ops_git_userpwd);
+		// PB DEPENDANCES A TRAITER ++++ >>> Donc compatible Ubuntu Uniquement
+		// SAUF SI JE FAIS UNE AUTRE DEPEDANCE UN AUTRE REPO QUI CONTIENT LA
+		// PROCEDURE DE DEPLOIEMENT DANS CIBLE DEPLOIEMNT
+		JiblExec.executeCetteCommande("rm -rf ./"+ this.NOM_REPO_GIT_ASSISTANT_DEPLOIEMENTS, adresseIPcibleDeploiement, this.ops_git_username, this.ops_git_userpwd);
+		// DAns la cibled e déploiement, le code source scala est directement déployé et compilé à la volée, sans ême avoir besoin de stopper sbt.
+		// Il suffit donc d'écraser les fichiers de la version précédente, pour la nouvelle, afin d'obtenir le changement de version
+		JiblExec.executeCetteCommande("git clone \""+ this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + "\" " + this.repertoireAppScalaDsCible, adresseIPcibleDeploiement, this.ops_git_username, this.ops_git_userpwd);
 		/**
 		 * 6. Je fais un petit affichage récapitulatif
 		 * 
@@ -223,7 +244,7 @@ public class DeploiementScala extends AbstractMojo {
 //		if (ops_git_scm_userpwd != null) { // mais je ne veux PAS que 
 //			
 //		}
-		this.ops_git_userpwd = this.demanderMotDePassePrRepoGit(this.ops_git_username, this.URL_REPO_GIT_ASSISTANT);
+		this.ops_git_userpwd = this.demanderMotDePassePrRepoGit(this.ops_git_username, this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS);
 	}
 	
 	/**
@@ -323,7 +344,7 @@ public class DeploiementScala extends AbstractMojo {
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" +++    Votre code source scala dans le répertoire {@see DeploiementScala#repertoireScala} a été poussé vers son repo de versionning: [this.urlRepoCodeSourceAppScala] ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
-		System.out.println(" +++    L'artefact déployé est la dernière versiond ela branche maester du repo : [" + this.URL_REPO_GIT_ASSISTANT + "] ");
+		System.out.println(" +++    L'artefact déployé est la dernière versiond ela branche maester du repo : [" + this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + "] ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
@@ -348,17 +369,22 @@ public class DeploiementScala extends AbstractMojo {
 		 */
 		String sautLigne = System.getProperty("line.separator");
 		try {
-			this.verifierSiRepoGitPresent();
-			// Si c'est le cas, il n'y a rien à faire.
+			this.verifierSiRepoGitPresent(); // s'il n'est pas présent, une RepoCodeSourceAbsentException est levée 
+			// init du repo git pour le code source de l'application scala
+			this.initialiserRepoLocalExistantCodeSourceScala();
+			
+			
 			StringBuilder messageTerminalInitialisationCodeSource =  new StringBuilder();
 			messageTerminalInitialisationCodeSource.append("DEPLOYEUR-MAVEN-PLUGIN");
+			messageTerminalInitialisationCodeSource.append(sautLigne);
+			messageTerminalInitialisationCodeSource.append(" l'initialisation du code source s'est déroulée sans exception.");
 			messageTerminalInitialisationCodeSource.append(sautLigne);
 			System.out.println(messageTerminalInitialisationCodeSource);
 			return;
 		} catch (RepoCodeSourceAbsentException e) { // sinon, je l'initialise en détruisant le répertoire, 
 			/** 
 			 * 2. Si aucun repo git n'est trouvé, je l'intialise avec le repo de code source que je clone.
-			 *    => Je demande à l'utilisateur de confirmer q'il veut que je chekout de tel repo de code source
+			 *    => Je demande à l'utilisateur de confirmer qu'il veut que je chekout de tel repo de code source
 			 *    => s'il réponds non, alors il a un affichge d'un messge qui propose à l'utilisateur de faire
 			 *       le clone lui-même manuellement s'il le souhaite.
 			 *    
@@ -421,7 +447,7 @@ public class DeploiementScala extends AbstractMojo {
 			switch (confirmationGitClone) {
 				case JOptionPane.YES_OPTION: {
 					// faire le git clone
-					this.clonerRegpoCodeSourceAppliScala();
+					this.initialiserRepogitLocalCodeSourceAppliScalaParGitClone();
 					break;
 				}
 				case JOptionPane.NO_OPTION: {
@@ -454,13 +480,102 @@ public class DeploiementScala extends AbstractMojo {
 					 * throw a MojoExecutionException if the problem makes it impossible
 					 * to continue with the build, and use the MojoFailureException otherwise.
 					 */
-					throw new MojoExecutionException(messageTerminalNePasCloner.toString());
+					throw new MojoExecutionException("Une exception est survenue pendant l'initialisation du code source de l'application Scala.");
 //					break;
 				}
 			}
-		}
+			
+		} /* catch (IOException e) {
+			System.out.println(" UNE ERREUYR I/O initialiserCodeSource() après avoir détecté un repo existant ");
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			System.out.println(" UNE ERREUYR URISyntaxException initialiserCodeSource() après avoir détecté un repo existant ");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} */
 		
 	}
+	
+	/**
+	 * Pas encorre certain d'utiliser une synchronisation.
+	 * TODO: vérifier si le repo local existant est désynchronisé avec el repo distant.
+	 * Si désynchrionisé", le repo local doit être détriut et re-cré avec 
+	 * {@see DeploiementScala#initialiserRepogitLocalCodeSourceAppliScalaParGitClone() }
+	 * 
+	 * Pourquoi? Par ce que le repo distant indiqué par le développeur est considéré comme la référence
+	 * de versionnig. 
+	 */
+	private void synchroniserRepoLocalExistantCodeSourceScala() {
+		/**
+		 * TODO: vérifier si le repo local existant est désynchronisé avec el repo distant.
+		 * Si désynchrionisé", le repo local doit être détriut et re-cré avec 
+		 * {@see DeploiementScala#initialiserRepogitLocalCodeSourceAppliScalaParGitClone() }
+		 * 
+		 * Pourquoi? Par ce que le repo distant indiqué par le développeur est considéré comme la référence
+		 * de versionnig. 
+		 * 
+		 */
+		
+	}
+	private Git repoGitLocalCodeSourceScala = null;
+	private Git repoGitLocalDeploiementScala = null;
+	
+	/**
+	 * Cette méthode intiialise un repo
+	 * pour faire un git pull ensuite.
+	 * @throws IOException Lorsque le répertoire {@see DeploiementScala#repertoireScala} n'existe pas, ou pose un problème I/O
+	 * @throws URISyntaxException Lorsque l'URL {@see DeploiementScala#URL_REPO_CODE_SOURCE_APP_SCALA } n'est pas une URL valide pour un repo Git
+	 * @throws GitAPIException Lorsque la commande d'ajout du repo "remote" a posé un problème
+	 */
+	private void configurerLeRemoteRepoDuCodeSourceAppScala() throws IOException, URISyntaxException, GitAPIException {
+//		StoredConfig config = git.getRepository().getConfig();
+//		config.setString("remote", "origin", "url", "http://github.com/user/repo");
+//		config.save();
+		// TODO Auto-generated method stub
+		RemoteAddCommand remoteAddCommand = this.repoGitLocalCodeSourceScala.remoteAdd();
+	    remoteAddCommand.setName("origin");
+	    remoteAddCommand.setUri(new URIish(this.URL_REPO_CODE_SOURCE_APP_SCALA));
+	    remoteAddCommand.call();
+	}
+	
+	/**
+	 * Permet d'intialiser le repo dans le cas où il est déjà existant (le code source a été modifié entre 2 exécutions du goal maven).
+	 * Cette méthode intialise par un objet non null, le champs {@see DeploiementScala#repoGitLocalCodeSourceScala }
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws GitAPIException
+	 * @throws MojoExecutionException Le Build est interommpu si l'initialisation du repo a échouée.
+	 */
+	private void initialiserRepoLocalExistantCodeSourceScala() throws MojoExecutionException {
+		
+		/**
+		 *  j'initialise une instance Git à partir du repo existant 
+		 */
+		try {
+			this.repoGitLocalCodeSourceScala = Git.init().setDirectory(new File(this.repertoireScala)).call();
+		//		repoCodeSrcAppScala.remoteSetUrl();
+			} catch (IllegalStateException e2) {
+		//		e2.printStackTrace();
+				throw new MojoExecutionException(" Problème IllegalStateException à l'intialisation du repo local " + "[" + this.repertoireScala + "]" +  " #initialiserRepoLocalExistantCodeSourceScala()", e2);
+			} catch (GitAPIException e2) {
+		//		e2.printStackTrace();
+				throw new MojoExecutionException(" Problème GitAPIException à l'intialisation du repo local "+ "[" + this.repertoireScala + "]" +  " #initialiserRepoLocalExistantCodeSourceScala()", e2);
+			}
+		
+		/**
+		 *  je configure le remote.
+		 */
+//		this.configurerLeRemoteRepoDuCodeSourceAppScala();
+		
+		/**
+		 * Je synchronisee le code osurce local aec le repo distant, référence de versionning.
+		 */
+//		this.synchroniserRepoLocalExistantCodeSourceScala();
+	}
+	
 	/**
 	 * Réalise le versionning de l'artefact de déploieent (le truc qui est déployé)
 	 * dans le repo git assistant des déploieemnts
@@ -475,23 +590,39 @@ public class DeploiementScala extends AbstractMojo {
 	 *          monRepoGitAmoi.add().addFilepattern(".").call();
 	 *      =>  le git commit and push vers le repo git déploiements app
 	 *      
+	 *      
+	 *      TODO: je n'ai pâs encore implémenté cela....
 	 * 
 	 * @throws MojoExecutionException 
 	 */
 	private void faireCommitAndPushDeploiement() throws MojoExecutionException {
-		String cheminRepoTemporaire = this.cheminRepBuildMaven + "/tempdeployeurscalawkdir/";
+		String cheminRepoTemporaire = this.cheminRepBuildMaven + "/tempdeployeurscalawkdir";
 		File repertoireRepoTemporaire = new File(cheminRepoTemporaire);
 		// je détruis repertoireRepoTemporaire, et le re-créée
+		StringBuilder verifDEBUG = new StringBuilder();
+		String sautLigne = System.getProperty("line.separator");
+		
+		verifDEBUG.append(" [verifDEBUG] :  valeur AVANT delete [repertoireRepoTemporaire.exists()=" + repertoireRepoTemporaire.exists() + "] ");
+		verifDEBUG.append(sautLigne);
+		verifDEBUG.append(" [verifDEBUG] :  valeur AVANT delete [ccc=" + repertoireRepoTemporaire.exists() + "] ");
+		verifDEBUG.append(sautLigne);
 		try {
 			if (repertoireRepoTemporaire.exists()) {
 				FileUtils.forceDelete(repertoireRepoTemporaire);
 			}
 		} catch (IOException e2) {
 			
-			System.out.println(" JIBL + pb au delete du répertoire du repo [" + cheminRepoTemporaire  + "]");
+			System.out.println(" [ERRREUUURR]  JIBL + pb au delete du répertoire du repo [" + cheminRepoTemporaire  + "]");
 			e2.printStackTrace();
 		}
 		boolean AETECREE = repertoireRepoTemporaire.mkdirs();
+		
+		verifDEBUG.append(" [verifDEBUG] :  valeur APRES delete [repertoireRepoTemporaire.exists()=" + repertoireRepoTemporaire.exists() + "] ");
+		verifDEBUG.append(sautLigne);
+		verifDEBUG.append(" [verifDEBUG] :  valeur APRES delete [ccc=" + repertoireRepoTemporaire.exists() + "] ");
+		verifDEBUG.append(sautLigne);
+		System.out.println(verifDEBUG);
+		
 		String msgINFOcreationDirRepo = "";
 		if (AETECREE) {
 			msgINFOcreationDirRepo = " JIBL + le Repertoire de repo a été créé ";
@@ -508,17 +639,18 @@ public class DeploiementScala extends AbstractMojo {
 		try {
 			CloneCommand cloneCommand = Git.cloneRepository();
 			cloneCommand.setDirectory(repertoireRepoTemporaire);
-			cloneCommand.setURI(this.URL_REPO_GIT_ASSISTANT);
+			cloneCommand.setURI(this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS);
 			cloneCommand.setCredentialsProvider(
 					new UsernamePasswordCredentialsProvider(this.ops_git_username, this.ops_git_userpwd));
+//			this.repoGitLocalDeploiementScala = cloneCommand.call();
 			repoGitDeploiementsAppliScala = cloneCommand.call();
 			// monrepogit = Git.init().setDirectory(repoDIR).call();
 		} catch (IllegalStateException e) {
-			System.out.println(" ERREUR AU GIT INIT DANS  \"" + this.repertoireScala + "\" ");
+			System.out.println(" ERREUR AU GIT CLONE DANS  \"" + cheminRepoTemporaire + "\" ");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (GitAPIException e) {
-			System.out.println(" ERREUR AU GIT INIT  DANS  \"" + this.repertoireScala + "\" ");
+			System.out.println(" ERREUR AU GIT CLONE  DANS  \"" + cheminRepoTemporaire + "\" ");
 			// TODO Auto-generated catch bloc
 			e.printStackTrace();
 		}
@@ -526,7 +658,7 @@ public class DeploiementScala extends AbstractMojo {
 		// => COPIE ARTEFACT DEPLOIEMENT DANS REPO LOCAL : je copie le
 		//    source scala édité dans [this.repertoireScala], vers le
 		//    répertoire  repertoireRepoTemporaire
-		File aCopier = new File(this.repertoireScala + "/");
+		File aCopier = new File(this.repertoireScala);
 		
 		try {
 			boolean preserveFileDate = true;
@@ -535,7 +667,9 @@ public class DeploiementScala extends AbstractMojo {
 		    e.printStackTrace();
 		}
 		
-		// => git pull
+		// => TOOD: git pull , non, car on a fait un clone
+		
+		
 		
 		// => GIT ADD : je fais le add de tous les fichiers
 		try { /// pour ajouter tous les fichiers (soit disant)
@@ -559,7 +693,7 @@ public class DeploiementScala extends AbstractMojo {
 		// => GUT PUSH :  je pousse vers le repo distant
 		Iterable<PushResult> resultatsPush = null;
 		try {
-			resultatsPush = repoGitDeploiementsAppliScala.push().setCredentialsProvider( new UsernamePasswordCredentialsProvider( this.ops_git_username, this.ops_git_userpwd ) ).call();
+			resultatsPush = repoGitDeploiementsAppliScala.push().setRemote(this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS).setCredentialsProvider( new UsernamePasswordCredentialsProvider( this.ops_git_username, this.ops_git_userpwd ) ).call();
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
 			throw new MojoExecutionException(" Problème au PUSH du repo local " + "[" + this.repertoireScala + "]" + " vers " + "[" + this.URL_REPO_CODE_SOURCE_APP_SCALA + "]", e);
@@ -570,7 +704,7 @@ public class DeploiementScala extends AbstractMojo {
 		
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
-		System.out.println(" +++++++++++++   RESULTAT DU PUSH vers : " + "[" + this.URL_REPO_GIT_ASSISTANT + "]" +" +++++++++++++ ");
+		System.out.println(" +++++++++++++   RESULTAT DU PUSH vers : " + "[" + this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + "]" +" +++++++++++++ ");
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" +++++++++++++   code retour du PUSH : " + status.toString());
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
@@ -587,25 +721,36 @@ public class DeploiementScala extends AbstractMojo {
 		// Je fais le git init, s'il un repo est déjà intiailisé et que nosu sommes en
 		// train de travailler, alors aucune modification n'est apportée au repo local git
 		// Simplement fait pour récupérer une référence Java sur le repository local
-		try {
-			repoCodeSrcAppScala = Git.init().setDirectory(repertoireDeTravail).call();
-		} catch (IllegalStateException e2) {
-//			e2.printStackTrace();
-			throw new MojoExecutionException(" Problème à l'intiialisation du repo local " + "[" + this.repertoireScala + "]" +  ", avant de faire le commit and push du code source de l'application vers son repo de versionning de code source.", e2);
-		} catch (GitAPIException e2) {
-//			e2.printStackTrace();
-			throw new MojoExecutionException(" Problème à l'intiialisation du repo local "+ "[" + this.repertoireScala + "]" + ", avant de faire le commit and push du code source de l'application vers son repo de versionning de code source.", e2);
-		}
+//		try {
+//			repoCodeSrcAppScala = Git.init().setDirectory(repertoireDeTravail).call();
+////			repoCodeSrcAppScala.remoteSetUrl();
+//		} catch (IllegalStateException e2) {
+////			e2.printStackTrace();
+//			throw new MojoExecutionException(" Problème à l'intialisation du repo local " + "[" + this.repertoireScala + "]" +  ", avant de faire le commit and push du code source de l'application vers son repo de versionning de code source.", e2);
+//		} catch (GitAPIException e2) {
+////			e2.printStackTrace();
+//			throw new MojoExecutionException(" Problème à l'intialisation du repo local "+ "[" + this.repertoireScala + "]" + ", avant de faire le commit and push du code source de l'application vers son repo de versionning de code source.", e2);
+//		}
+		
+		// à la place du git init, je récupère simlement le repo git initialisé par la méthode {@see DeploiementSclala#initialiserLeCodeSource() }
+		repoCodeSrcAppScala = this.repoGitLocalCodeSourceScala; // il est censé être déjà initialisé
+		System.out.println(" [>Le champs this.repoGitLocalCodeSourceScala <] " + (this.repoGitLocalCodeSourceScala != null?" n'est pas NULL": " est NULL"));
 		// => je fais le add du fichier war
 		try { /// pour ajouter tous les fichiers (soit disant)
 			DirCache index = repoCodeSrcAppScala.add().addFilepattern(".").call();
 		} catch (GitAPIException e1) {
 			throw new MojoExecutionException(" Problème à l'ajout (git add) des fichiers au versionning dans le repo local "+ "[" + this.repertoireScala + "]" + ", avant de faire le commit and push du code source de l'application vers son repo de versionning de code source.", e1);
 		}
-		// => je fais le commit
+		
+		// => je vérifies le Git status avant le commit and push
+		try {
+			this.verifierLeStatutDugitRepo(this.repoGitLocalCodeSourceScala);
+		} catch (NoWorkTreeException | GitAPIException e2) {
+//			e2.printStackTrace();
+			throw new MojoExecutionException(" Un problème est survenu lorsquele deployeur plugina  essayé de vérifier le status du repo Git versionnant le code source de l'application Scala.", e2);
+		}
 
-//		monrepogit.remoteSetUrl(URLduREPO);
-//		monrepogit.remoteSetUrl()
+		// => je fais le commit
 		RevCommit commit = null;
 		try {
 			String messageDeCommit = this.demanderMessageDeCommitAndPushVersRepoGit(this.ops_scm_git_username, this.URL_REPO_CODE_SOURCE_APP_SCALA);
@@ -620,7 +765,7 @@ public class DeploiementScala extends AbstractMojo {
 		
 		Iterable<PushResult> resultatsPush = null;
 		try {
-			resultatsPush = repoCodeSrcAppScala.push().setCredentialsProvider( new UsernamePasswordCredentialsProvider( this.ops_git_username, this.ops_git_userpwd ) ).call();
+			resultatsPush = repoCodeSrcAppScala.push().setRemote(this.URL_REPO_CODE_SOURCE_APP_SCALA).setCredentialsProvider( new UsernamePasswordCredentialsProvider( this.ops_git_username, this.ops_git_userpwd ) ).call();
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
 			throw new MojoExecutionException(" Problème au PUSH du repo local " + "[" + this.repertoireScala + "]" + " vers " + "[" + this.URL_REPO_CODE_SOURCE_APP_SCALA + "]", e);
@@ -647,11 +792,17 @@ public class DeploiementScala extends AbstractMojo {
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
 	}
-
+	
 	/**
-	 * TODO: rterminer l'inmplémentation, celle là doit juste faire le clone
+	 * Cette méthode intitialise le repo local du code source de l'application Scala, dans le cas où le rpeo  ne soit pas encore initialisé
+	 * repo git pas encore intialisé <=> {@see DeploiementScala#verifierSiRepoGitPresent() } lève une excecption
+	 * 
+	 * Cette méthode attribue une instance {@see org.eclipse.jgit.api.Git } "non nulle" (ne pointant pas vers "null"), à
+	 * {@see DeploiementScala#repoGitLocalCodeSourceScala }
+	 * 
+	 * 
 	 */
-	private void clonerRegpoCodeSourceAppliScala() {
+	private void initialiserRepogitLocalCodeSourceAppliScalaParGitClone() {
 		// --
 		File repCodeSrcScala = new File(this.repertoireScala);
 //		String cheminRepo = this.cheminRepoGitLocalDeTravail;
@@ -689,11 +840,10 @@ public class DeploiementScala extends AbstractMojo {
 			cloneCommand.setURI(URLduREPO);
 			cloneCommand.setCredentialsProvider(
 					new UsernamePasswordCredentialsProvider(this.ops_git_username, this.ops_git_userpwd));
-			repoGitAppliScala = cloneCommand.call();
-			// monrepogit = Git.init().setDirectory(repoDIR).call();
+			this.repoGitLocalCodeSourceScala = cloneCommand.call();
+			// repoGitAppliScala = Git.init().setDirectory(repoDIR).call();
 		} catch (IllegalStateException e) {
 			System.out.println(" ERREUR AU GIT INIT DANS  \"" + this.repertoireScala + "\" ");
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (GitAPIException e) {
 			System.out.println(" ERREUR AU GIT INIT  DANS  \"" + this.repertoireScala + "\" ");
@@ -706,7 +856,7 @@ public class DeploiementScala extends AbstractMojo {
 
 	/**
 	 * ----------------------------------------------------------------------------------
-	 * Classes d'Exceptions utilisées pour l'initilisatgiond u code source à éditer.
+	 * Classes d'Exceptions utilisées pour l'initilisatgion du code source à éditer.
 	 * ----------------------------------------------------------------------------------
 	 *
 	 */
@@ -791,7 +941,9 @@ public class DeploiementScala extends AbstractMojo {
 	}
 
 	/**
-	 * Levée dans le cas où mon plugin ne trouve pas le repo de code source scala
+	 * Levée dans le cas où mon plugin ne trouve pas
+	 * le repo local du code source de l'application scala.
+	 * 
 	 * dans {@see DeploiementScala#repertoireScala}
 	 * 
 	 * @author Jean-Baptiste Lasselle
@@ -857,5 +1009,27 @@ public class DeploiementScala extends AbstractMojo {
 
 	}
 
-
+	/**
+	 * Si cette méthode ne lève pas d'aexception, c'est que le repo est valide, et Git est bien installé....
+	 * 
+	 * @throws NoWorkTreeException
+	 * @throws GitAPIException
+	 */
+	private void verifierLeStatutDugitRepo(Git repoAverifier) throws NoWorkTreeException, GitAPIException {
+		Status status = repoAverifier.status().call();
+		Set<String> fichiersAjoutes = status.getAdded();
+		Iterator<String> iterateur = fichiersAjoutes.iterator();
+		
+		StringBuilder affichage = new StringBuilder();
+		String sautLigne = System.getProperty("line.separator");
+		
+		affichage.append(" Fichiers ajoutés pour le prochain commit:");
+		String nomFichier = null;
+		while(iterateur.hasNext()) {
+			nomFichier = iterateur.next();
+			affichage.append(" ajouté*: " + nomFichier);
+			affichage.append(sautLigne);
+		}
+		System.out.println(affichage);
+	}
 }
