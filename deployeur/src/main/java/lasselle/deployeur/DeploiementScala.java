@@ -597,6 +597,11 @@ public class DeploiementScala extends AbstractMojo {
 	 */
 	private void faireCommitAndPushDeploiement() throws MojoExecutionException {
 		String cheminRepoTemporaire = this.cheminRepBuildMaven + "/tempdeployeurscalawkdir";
+		String cheminCopieSrcIntermediaire = this.cheminRepBuildMaven + "/tempdeployeurscalaopdir";
+		String cheminPointGitDsRepCopieSrcIntermediaire = this.cheminRepBuildMaven + "/tempdeployeurscalaopdir/.git";
+		
+		File repertoireCopieSrcIntermediaire = new File(cheminCopieSrcIntermediaire);
+		File pointGitDsRepCopieSrcIntermediaire = new File(cheminPointGitDsRepCopieSrcIntermediaire);
 		File repertoireRepoTemporaire = new File(cheminRepoTemporaire);
 		// je détruis repertoireRepoTemporaire, et le re-créée
 		StringBuilder verifDEBUG = new StringBuilder();
@@ -646,13 +651,16 @@ public class DeploiementScala extends AbstractMojo {
 			repoGitDeploiementsAppliScala = cloneCommand.call();
 			// monrepogit = Git.init().setDirectory(repoDIR).call();
 		} catch (IllegalStateException e) {
-			System.out.println(" ERREUR AU GIT CLONE DANS  \"" + cheminRepoTemporaire + "\" ");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new MojoExecutionException(" ERREUR AU GIT CLONE  DANS  \"" + cheminRepoTemporaire + "\" ", e);
+//			System.out.println(" ERREUR AU GIT CLONE DANS  \"" + cheminRepoTemporaire + "\" ");
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
 		} catch (GitAPIException e) {
-			System.out.println(" ERREUR AU GIT CLONE  DANS  \"" + cheminRepoTemporaire + "\" ");
-			// TODO Auto-generated catch bloc
-			e.printStackTrace();
+			
+			throw new MojoExecutionException(" ERREUR AU GIT CLONE  DANS  \"" + cheminRepoTemporaire + "\" ", e);
+//			System.out.println(" ERREUR AU GIT CLONE  DANS  \"" + cheminRepoTemporaire + "\" ");
+//			// TODO Auto-generated catch bloc
+//			e.printStackTrace();
 		}
 		
 		// => COPIE ARTEFACT DEPLOIEMENT DANS REPO LOCAL : je copie le
@@ -662,7 +670,24 @@ public class DeploiementScala extends AbstractMojo {
 		
 		try {
 			boolean preserveFileDate = true;
-			org.apache.commons.io.FileUtils.copyDirectory(aCopier, repertoireRepoTemporaire, preserveFileDate);
+			
+			org.apache.commons.io.FileUtils.copyDirectory(aCopier, repertoireCopieSrcIntermediaire, preserveFileDate);
+			// A VERIFIIIIIIIIIIIIIIIIIIIIIIERRRRRRRRR: 
+			/**
+			 * Es-ce que cette copie, copie aussi le répertorie caché		
+			 */
+			try {
+				if (pointGitDsRepCopieSrcIntermediaire.exists()) {
+					FileUtils.forceDelete(pointGitDsRepCopieSrcIntermediaire);
+				} else {
+					System.out.println(" Aucun répertoire point GIT [" + cheminPointGitDsRepCopieSrcIntermediaire + "]  n'a été trouvé daans le répertoire intermédiaire de copie du codde source");
+				}
+			} catch (IOException e2) {
+				throw new MojoExecutionException(" [ERRREUUURR]  JIBL + pb au delete du répertoire du repo [" + pointGitDsRepCopieSrcIntermediaire  + "]", e2);
+//				System.out.println();
+			}
+			org.apache.commons.io.FileUtils.copyDirectory(repertoireCopieSrcIntermediaire, repertoireRepoTemporaire, preserveFileDate); 
+			
 		} catch (IOException e) {
 		    e.printStackTrace();
 		}
