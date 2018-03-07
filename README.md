@@ -151,5 +151,5 @@ https://github.com/Jean-Baptiste-Lasselle/lauriane/releases/tag/v7.3.0
 # TODO :
 
 * rendre cohérent les noms de paramètres utilisés pour configurer le plugin, pour les 2 Goals définits (Java et Scala)
-* Améliorer l'UX utilisateur du plugin, pour qu'il comprenne bien que le plugin utilise 2 repo Git Assistant: l'un, la référence du code source de l'application, l'autre, le référentiel de déploiements "Infdrastructure As Code".
+* Améliorer l'UX utilisateur du plugin, pour qu'il comprenne bien que le plugin utilise 2 repo Git Assistant: l'un, la référence du code source de l'application, l'autre, le référentiel de déploiements "Infdrastructure As Code". En premier lieu, l'utilisateur doit être informé si sa configuration pom.xml ne mentionne pas 2 repos valides pour les référentiels de versionning et de déploiement.
 * Déléguer le travail de déploiement au contrôleur de l'usine logicielle, pour que le plugin ne devinne plus qu'un client de l'usine logicielle.
