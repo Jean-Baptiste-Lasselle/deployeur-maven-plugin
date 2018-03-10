@@ -33,6 +33,19 @@ import lasselle.ssh.operations.elementaires.JiblExec;
 
 //import lasselle.ssh.operations.elementaires.JiblExec;
 /**
+ * Une reectted e déploiement vraiment nulle:
+ * Tout ce que 'lon fait, c'est invoquer la recette de déploiement:
+ * 
+ * 
+ * export PROVISIONNING_HOME=$HOME/provisionning-scala ; rm -rf $PROVISIONNING_HOME
+ * mkdir -p $PROVISIONNING_HOME/recettes-operations  
+ * git clone https://github.com/Jean-Baptiste-Lasselle/lauriane $PROVISIONNING_HOME/recettes-operations
+ * sudo chmod +x $PROVISIONNING_HOME/recettes-operations/monter-cible-deploiement-scala.sh
+ * cd $PROVISIONNING_HOME/recettes-operations
+ * ./monter-cible-deploiement-scala.sh
+ * 
+ * 
+ * 
  * ********************************************************************************************************************************
  * Récaitualtif des paramètres:
  * 
@@ -76,11 +89,11 @@ import lasselle.ssh.operations.elementaires.JiblExec;
  * ********************************************************************************************************************************
  * 
  * 
- * @author ezy
+ * @author Jean-Baptiste Lasselle
  *
  */
-@Mojo(name = "deploie-app-scala")
-public class DeploiementScala extends AbstractMojo {
+@Mojo(name = "provision-scala")
+public class MonterCibleDeploiementScala extends AbstractMojo {
 
 	/**
 	 * ********************************************************************************************************************************
@@ -184,13 +197,11 @@ public class DeploiementScala extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
-		this.demanderMotDePasseRepoGitCodeSource();
-		this.demanderMotDePasseRepoGitAssistantDeploieemnts();
 		
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
-		System.out.println(" +++++++++++++++++++	DEPLIEMENT SCALA	+++++++++++++++++++ ");
+		System.out.println(" ++++++++++++  MONTEE CIBLE DEPLOIEMENT SCALA	+++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		
@@ -207,31 +218,43 @@ public class DeploiementScala extends AbstractMojo {
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		
-		
+
+		/**
+		 * 0. Demander interactive des credentials, pour assurer que les données de
+		 * sécurité ne soient jamais présentes dans le référentiel de versionning du pom.xml
+		 */
+		this.demanderMotDePasseRepoGitCodeSource();
+		this.demanderMotDePasseRepoGitAssistantDeploiements();
 		/**
 		 * 1. Initialiser le positionnement de version du code source de l'app. dans le répertoire {@see DeploiementScala#repertoireScala}
 		 */
 		this.initialiserCodeSource();
-
 		/**
-		 * 3. Le repo est maitenant initialisé, je fais le commit & push vers le repo de code source 
+		 * 2.Je fais le commit and push vers le repo référentiel de versionning du code source de l'application Scala
+		 *  
 		 */
 		this.faireCommitAndPushCodeSource();
 		
 		/**
-		 * Je fais le commit and push vers le repo assistant du déploiement
+		 * 3. Je fais le commit and push vers le repo référentiel de versionning des déploiements de l'applciations Scala
 		 */
 		this.faireCommitAndPushDeploiement();
-		
 		/**
-		 * 5. Avec JSch je fais le git clone dans cible de déploiement, (et s'il faut je redemarre sbt,mais à priori non) 
+		 * 4. Avec JSch je réalise l'exécution de la recette de montée de la cible de déploiement
+		 * 
+		 *  => Très important à noter:
+		 *  
+		 * TODO: l'utilisateur linux qui doit éxécuter cette recette de déploiement est l'utilisateur "comissioner".
+		 * Ce doit être un utiloisateur différent de l'utilisateur linux  que le deployeur-plugin utilise.
 		 */
-		// je détruis, le repo, et le re-crrées par git clone.
-		// PB DEPENDANCES A TRAITER ++++ >>> Donc compatible Ubuntu Uniquement
-		// SAUF SI JE FAIS UNE AUTRE DEPEDANCE UN AUTRE REPO QUI CONTIENT LA
-		// PROCEDURE DE DEPLOIEMENT DANS CIBLE DEPLOIEMNT
+
+		JiblExec.executeCetteCommande("rm -rf $HOME/provisionning-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("mkdir -p $HOME/provisionning-scala/recettes-operations", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("git clone https://github.com/Jean-Baptiste-Lasselle/lauriane $PROVISIONNING_HOME/recettes-operations", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("chmod +x $HOME/provisionning-scala/recettes-operations/monter-cible-deploiement-scala.sh", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("cd $HOME/provisionning-scala/recettes-operations", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("./monter-cible-deploiement-scala.sh " + this.URL_REPO_CODE_SOURCE_APP_SCALA, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		
-		JiblExec.executeCetteCommande("sudo rm -rf "+ this.repertoireAppScalaDsCible, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		// DAns la cibled e déploiement, le code source scala est directement déployé et compilé à la volée, sans ême avoir besoin de stopper sbt.
 		// Il suffit donc d'écraser les fichiers de la version précédente, pour la nouvelle, afin d'obtenir le changement de version
 		JiblExec.executeCetteCommande("git clone \""+ this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + "\" " + this.repertoireAppScalaDsCible, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
@@ -248,7 +271,7 @@ public class DeploiementScala extends AbstractMojo {
 	 * @return 
 	 * @throws MojoExecutionException lorsque le mot de passe saisi est null ou la chaîne de caractères vide
 	 */
-	private void demanderMotDePasseRepoGitAssistantDeploieemnts() throws MojoExecutionException {
+	private void demanderMotDePasseRepoGitAssistantDeploiements() throws MojoExecutionException {
 //		if (ops_git_scm_userpwd != null) { // mais je ne veux PAS que 
 //			
 //		}
@@ -343,16 +366,15 @@ public class DeploiementScala extends AbstractMojo {
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
-		System.out.println(" ++++++++++++++++	DEPLOIEMENT SCALA TERMINE	+++++++++++++++ ");
+		System.out.println(" ++++++	      MONTEE CIBLE DEPLOIEMENT SCALA TERMINE     ++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
-		
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
-		System.out.println(" +++	L'application scala est disponible à l'url: [http://" + this.adresseIPcibleDeploiement + ":" + this.numeroPortSrvScala + "/eventuellementautrechoseNomContexte] ");
+		System.out.println(" +++	La cible de déploiement est maintenant en service.");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
-		System.out.println(" +++    Votre code source scala dans le répertoire {@see DeploiementScala#repertoireScala} a été poussé vers son repo de versionning: [this.urlRepoCodeSourceAppScala] ");
+		System.out.println(" +++	L'appliscala est disponible à l'url: [http://" + this.adresseIPcibleDeploiement + ":" + this.numeroPortSrvScala);
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
-		System.out.println(" +++    L'artefact déployé est la dernière versiond ela branche maester du repo : [" + this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + "] ");
+		System.out.println(" +++    L'artefact déployé est la dernière version de la branche \"master\\\" du repo : [" + this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + "] ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
@@ -750,6 +772,7 @@ public class DeploiementScala extends AbstractMojo {
 	 * @throws MojoExecutionException
 	 */
 	private void faireCommitAndPushCodeSource() throws MojoExecutionException {
+		
 		File repertoireDeTravail = new File(this.repertoireScala);
 		Git repoCodeSrcAppScala = null;
 		// Je fais le git init, s'il un repo est déjà intiailisé et que nosu sommes en
@@ -780,7 +803,6 @@ public class DeploiementScala extends AbstractMojo {
 		try {
 			this.verifierLeStatutDugitRepo(this.repoGitLocalCodeSourceScala);
 		} catch (NoWorkTreeException | GitAPIException e2) {
-//			e2.printStackTrace();
 			throw new MojoExecutionException(" Un problème est survenu lorsquele deployeur plugina  essayé de vérifier le status du repo Git versionnant le code source de l'application Scala.", e2);
 		}
 

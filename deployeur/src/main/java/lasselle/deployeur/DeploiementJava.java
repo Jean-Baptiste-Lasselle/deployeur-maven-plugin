@@ -21,7 +21,7 @@ import lasselle.ssh.operations.elementaires.JiblExec;
 
 
 @Mojo( name = "deploie")
-public class JiblMojo1 extends AbstractMojo {
+public class DeploiementJava extends AbstractMojo {
 	
 	/**
 	 * Les paramètres du goal maven
