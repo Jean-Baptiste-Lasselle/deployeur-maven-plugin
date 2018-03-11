@@ -6,7 +6,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.io.*;
 
-public class JiblExec {
+public class JiblExecSansFin {
 	
 	/**
 	 * effectue la commande que je souhaite exécuter en secure shell 
@@ -18,13 +18,14 @@ public class JiblExec {
 	public static void executeCetteCommande(String commandeAexecuter, String AcetteAdresseIP, String AvecCeUser, String AvecCeMotdepasse) {
 		// String[] tableauArgs = {"user@remotehost:nomfinaldufichierCopie"}; // "Enter username@hostname"
 		String[] tableauArgs = {AvecCeUser + "@"+AcetteAdresseIP};
-		JiblExec.Executer(tableauArgs, AvecCeMotdepasse, commandeAexecuter);
+		JiblExecSansFin.Executer(tableauArgs, AvecCeMotdepasse, commandeAexecuter);
 	}
+	private static Channel channel = null;
 	private static void Executer(String[] arg, String motdepasse, String commandeAexecuter) {
 		/**
 		 * le canal de communication SSH
 		 */
-		Channel channel = null;
+		
 		/**
 		 * la sortie faite par le système après exécution de la commande
 		 */
@@ -69,8 +70,8 @@ public class JiblExec {
 			// X Forwarding
 			// channel.setXForwarding(true);
 
-			 channel.setInputStream(System.in); // pour que je puisse répondre aux demandes envoyées interactivement par les scripts?
-//			channel.setInputStream(null);
+			// channel.setInputStream(System.in);
+			channel.setInputStream(null);
 
 			// channel.setOutputStream(System.out);
 
@@ -100,15 +101,18 @@ public class JiblExec {
 				try {
 					Thread.sleep(1000);
 				} catch (Exception ee) {
+					System.out.println(" Un problème est survenu pendant l'exécution  de la commande [" + commandeAexecuter + "] ");
+					ee.printStackTrace();
 				}
 			}
-			channel.disconnect();
-			session.disconnect();
+//			channel.disconnect();
+//			session.disconnect();
 		} catch (Exception e) {
 			System.out.println(e);
 		} finally {
 			// Affichage de la sortie de la sortie de la commande:
 //			lireSortieApresExecutionCommande(channel);
+			System.out.println("[+deployeur] Stoppez l'exécution du plugin pour arrêter le serveur à distance");
 		}
 	}
 	/**
@@ -120,10 +124,10 @@ public class JiblExec {
 		System.out.println("[DEBUT-sortie après exécution-]");
 	    byte[] buffer = new byte[1024];
 	
-	    try {
+	    try{
 	        InputStream in = unCanalSSH.getInputStream();
 	        String line = "";
-	        while (true) {
+	        while (true){
 	            while (in.available() > 0) {
 	                int i = in.read(buffer, 0, 1024);
 	                if (i < 0) {
@@ -133,20 +137,20 @@ public class JiblExec {
 	                System.out.println(line);
 	            }
 	
-	            if(line.contains("logout")) {
+	            if(line.contains("logout")){
 	                break;
 	            }
 	
-	            if (unCanalSSH.isClosed()) {
+	            if (unCanalSSH.isClosed()){
 	                break;
 	            }
-	            
 	            try {
 	                Thread.sleep(1000);
 	            } catch (Exception ee){}
 	        }
 	    } catch (Exception e) {
-	        System.out.println("Une exception s'est produite lors de la lecture de la sortie système : "+ e.getMessage());
+	        System.out.println("Une exceptionds'est produite lors de la lecture de la sortie système : "+ e.getMessage());
+//	        System.out.println();
 	        e.printStackTrace();
 	    }
 	    

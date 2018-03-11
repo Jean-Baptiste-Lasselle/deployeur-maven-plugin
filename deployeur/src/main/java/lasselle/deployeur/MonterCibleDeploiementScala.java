@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 //                                     F‌ileRepositoryBuilder
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -23,13 +22,13 @@ import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.errors.NoWorkTreeException;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import lasselle.ssh.operations.elementaires.JiblExec;
+import lasselle.ssh.operations.elementaires.JiblExecSansFin;
 
 //import lasselle.ssh.operations.elementaires.JiblExec;
 /**
@@ -247,17 +246,15 @@ public class MonterCibleDeploiementScala extends AbstractMojo {
 		 * TODO: l'utilisateur linux qui doit éxécuter cette recette de déploiement est l'utilisateur "comissioner".
 		 * Ce doit être un utiloisateur différent de l'utilisateur linux  que le deployeur-plugin utilise.
 		 */
-
-		JiblExec.executeCetteCommande("rm -rf $HOME/provisionning-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("mkdir -p $HOME/provisionning-scala/recettes-operations", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("git clone https://github.com/Jean-Baptiste-Lasselle/lauriane $PROVISIONNING_HOME/recettes-operations", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("chmod +x $HOME/provisionning-scala/recettes-operations/monter-cible-deploiement-scala.sh", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("cd $HOME/provisionning-scala/recettes-operations", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("./monter-cible-deploiement-scala.sh " + this.URL_REPO_CODE_SOURCE_APP_SCALA, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		
-		// DAns la cibled e déploiement, le code source scala est directement déployé et compilé à la volée, sans ême avoir besoin de stopper sbt.
-		// Il suffit donc d'écraser les fichiers de la version précédente, pour la nouvelle, afin d'obtenir le changement de version
-		JiblExec.executeCetteCommande("git clone \""+ this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + "\" " + this.repertoireAppScalaDsCible, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("rm -rf $HOME/provisionning-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("mkdir -p $HOME/provisionning-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("git clone https://github.com/Jean-Baptiste-Lasselle/lauriane $HOME/provisionning-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("chmod +x $HOME/provisionning-scala/monter-cible-deploiement-scala.sh", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("export VOYONS=savaleurvoyons; echo $VOYONS;", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		// le script [recette-provisionning-lx-user-provision-scala.sh] DOIT être exécuté manuellement avant de pouvoir utiliser ce goal du deployeur-plugin
+//		JiblExec.executeCetteCommande("$HOME/provisionning-scala/recette-provisionning-lx-user-provision-scala.sh", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExecSansFin.executeCetteCommande("$HOME/provisionning-scala/monter-cible-deploiement-scala.sh " + this.URL_REPO_CODE_SOURCE_APP_SCALA, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		/**
 		 * 6. Je fais un petit affichage récapitulatif
 		 * 
