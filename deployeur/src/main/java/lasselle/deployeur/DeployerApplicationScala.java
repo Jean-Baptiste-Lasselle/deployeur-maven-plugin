@@ -32,19 +32,12 @@ import lasselle.ssh.operations.elementaires.JiblExecSansFin;
 
 //import lasselle.ssh.operations.elementaires.JiblExec;
 /**
- * Une reectted e déploiement vraiment nulle:
- * Tout ce que 'lon fait, c'est invoquer la recette de déploiement:
+ * Une recette de déploiement de l'applciation Scala, à exécuter après avoir exécuté le goal [deployeur:provision-scala] cf. {@see MonterCibleDeploiementScala}
  * 
+ * Ce goal supprime la version précédente de l'application, pour déployer et démarrer la nouvelle version de l'application
  * 
- * export PROVISIONNING_HOME=$HOME/provisionning-scala ; rm -rf $PROVISIONNING_HOME
- * mkdir -p $PROVISIONNING_HOME/recettes-operations  
- * git clone https://github.com/Jean-Baptiste-Lasselle/lauriane $PROVISIONNING_HOME/recettes-operations
- * sudo chmod +x $PROVISIONNING_HOME/recettes-operations/monter-cible-deploiement-scala.sh
- * cd $PROVISIONNING_HOME/recettes-operations
- * ./monter-cible-deploiement-scala.sh
- * 
- * 
- * 
+ *  
+ * Tout ce que ce goal fait, c'est exécuter [recette-deploiement-application-scala.sh]
  * ********************************************************************************************************************************
  * Récaitualtif des paramètres:
  * 
@@ -91,8 +84,8 @@ import lasselle.ssh.operations.elementaires.JiblExecSansFin;
  * @author Jean-Baptiste Lasselle
  *
  */
-@Mojo(name = "provision-scala")
-public class MonterCibleDeploiementScala extends AbstractMojo {
+@Mojo(name = "deploy-scala-app")
+public class DeployerApplicationScala extends AbstractMojo {
 
 	/**
 	 * ********************************************************************************************************************************
@@ -225,13 +218,10 @@ public class MonterCibleDeploiementScala extends AbstractMojo {
 		this.demanderMotDePasseRepoGitCodeSource();
 		this.demanderMotDePasseRepoGitAssistantDeploiements();
 		/**
-		 * TODO: Non, je sais, il fait en réalité intiialiser le code source de la recette de montée de la cible de déploiement.
-		 * Plus conceptuellement, il s'agit là de "charrger", dsans notre cycle de développement, une brique du "stack" déployé. 
 		 * 1. Initialiser le positionnement de version du code source de l'app. dans le répertoire {@see DeploiementScala#repertoireScala}
 		 */
 		this.initialiserCodeSource();
 		/**
-		 * TODO: Non, je sais, en réalité, c'est le Commit And Push du code source de la recette de déploiement, qu'il faut ici faire, et non du code sourtce de l'applciartion Scala
 		 * 2.Je fais le commit and push vers le repo référentiel de versionning du code source de l'application Scala
 		 *  
 		 */
@@ -239,7 +229,6 @@ public class MonterCibleDeploiementScala extends AbstractMojo {
 		
 		/**
 		 * 3. Je fais le commit and push vers le repo référentiel de versionning des déploiements de l'applciations Scala
-		 * TODO: Non, je sais, en réalité, c'est le Commit And Push du code source de la recette de déploiement, qu'il faut ici faire, et non du code sourtce de l'applciartion Scala
 		 */
 		this.faireCommitAndPushDeploiement();
 		/**
@@ -251,12 +240,13 @@ public class MonterCibleDeploiementScala extends AbstractMojo {
 		 * Ce doit être un utiloisateur différent de l'utilisateur linux  que le deployeur-plugin utilise.
 		 */
 		
-		JiblExec.executeCetteCommande("rm -rf $HOME/provisionning-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("mkdir -p $HOME/provisionning-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("git clone https://github.com/Jean-Baptiste-Lasselle/lauriane $HOME/provisionning-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("chmod +x $HOME/provisionning-scala/monter-cible-deploiement-scala.sh", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("export VOYONS=savaleurvoyons; echo $VOYONS;", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("$HOME/provisionning-scala/monter-cible-deploiement-scala.sh " + this.URL_REPO_CODE_SOURCE_APP_SCALA, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("rm -rf $HOME/deploiements-app-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("mkdir -p $HOME/deploiements-app-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("git clone https://github.com/Jean-Baptiste-Lasselle/lauriane $HOME/deploiements-app-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("chmod +x $HOME/deploiements-app-scala/recette-deploiement-application-scala.sh", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		// J'exécute la recette de déploiement spécifique à l'OS de la cible de déploiement.
+		// Je dois exécuter "sans fin", parce que le process s'exéctant suite à la commande sbt ~run ne se termine jamais. 
+		JiblExecSansFin.executeCetteCommande("$HOME/deploiements-app-scala/recette-deploiement-application-scala.sh " + this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + " " + this.repertoireAppScalaDsCible, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		/**
 		 * 6. Je fais un petit affichage récapitulatif
 		 * 
@@ -383,12 +373,6 @@ public class MonterCibleDeploiementScala extends AbstractMojo {
 		
 	}
 
-	/**
-	 * 
-	 * TODO: Non, je sais, en réalité, c'est le code source de la recette de déploiement, qu'il faut initialiser, et non 
-	 * le code sourtce de l'application Scala
-	 * @throws MojoExecutionException
-	 */
 	private void initialiserCodeSource() throws MojoExecutionException {
 		
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
@@ -612,8 +596,6 @@ public class MonterCibleDeploiementScala extends AbstractMojo {
 	}
 	
 	/**
-	 * TODO: Non, je sais, en réalité, c'est le Commit And Push du code source de la recette de déploiement, qu'il faut ici faire, et non du code sourtce de l'applciartion Scala
-	 * 
 	 * Réalise le versionning de l'artefact de déploieent (le truc qui est déployé)
 	 * dans le repo git assistant des déploieemnts
 	 * 
@@ -775,7 +757,6 @@ public class MonterCibleDeploiementScala extends AbstractMojo {
 		System.out.println(" +++++++++++++++++++++++++++++++++++++++++++++++ ");
 	}
 	/**
-	 * TODO: Non, je sais, en réalité, c'est le Commit And Push du code source de la recette de déploiement, qu'il faut ici faire, et non du code sourtce de l'applciartion Scala
 	 * Réalise le commit and push du code source édité, veeers le repo de code source de l'application
 	 * @throws MojoExecutionException
 	 */

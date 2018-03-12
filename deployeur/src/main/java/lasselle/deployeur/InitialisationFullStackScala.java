@@ -24,8 +24,27 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import lasselle.ssh.operations.elementaires.JiblExec;
 
-@Mojo(name = "init-app-scala")
-public class InitialisationScala extends AbstractMojo {
+/**
+ * TODO: Après avoir généré le project maven à partir de l'archetype maven 'fullstack-scala-archetype' (à crééer et versionner avec un repo github), Ce goal:
+ *  
+ *  => Il s'agit d'initialiser le cycle de développement Fullstack en partant:
+ *   	+++ pour le code source l'application Scala, d'une version précise d'un repo Git pour lequel nous avons un accès en lecture seule.
+ *   	+++ pour le code source la recette de montée de la cible de déploiement de l'application Scala, d'une version précise d'un repo Git pour lequel nous avons un accès en lecture seule.
+ *   	+++ pour le code source la recette de déploiement de l'application Scala, d'une version précise d'un repo Git pour lequel nous avons un accès en lecture seule.
+ *  
+ *  Pour chacun des 3 codes sources, des plugins eclipse spécialisés pourl'édition dans le language du code source peuvent être installés
+ *  
+ *  Pour chacun des 3 codes sources, il faudra donc préciser un paramètre de configuration dans le pom.xml:
+ *   	+++ pour le code source l'application Scala: <url-repo-git-app-scala>https://github.com/Jean-Baptiste-Lasselle/siteweb-usinelogicielle.com</url-repo-git-app-scala>
+ *   	+++ pour le code source la recette de montée de la cible de déploiement de l'application Scala: <url-repo-git-recette-montee-cible-deploiement-app-scala>https://github.com/Jean-Baptiste-Lasselle/siteweb-usinelogicielle.com</url-repo-git-recette-montee-cible-deploiement-app-scala>
+ *   	+++ pour le code source la recette de déploiement de l'application Scala:  <url-repo-git-recette-deploiement-app-scala>https://github.com/Jean-Baptiste-Lasselle/siteweb-usinelogicielle.com</url-repo-git-recette-deploiement-app-scala>
+ *   
+ *  
+ * @author Jean-Baptiste Lasselle
+ *
+ */
+@Mojo(name = "scala-fullstack-init")
+public class InitialisationFullStackScala extends AbstractMojo {
 
 	/**
 	 * ********************************************************************************************************************************
