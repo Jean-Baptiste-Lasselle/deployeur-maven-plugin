@@ -240,7 +240,7 @@ public class DeployerApplicationScala extends AbstractMojo {
 		JiblExec.executeCetteCommande("rm -rf " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		JiblExec.executeCetteCommande("ps -ef | grep '[s]bt'| awk '{print $2}' >> " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		JiblExec.executeCetteCommande("while read pidprocesssbt; do  kill -9 $pidprocesssbt; done < " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-
+		JiblExec.executeCetteCommande("rm -rf " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		/**
 		 * 5. Avec JSch je réalise l'exécution de la recette de montée de la cible de déploiement
 		 * 
