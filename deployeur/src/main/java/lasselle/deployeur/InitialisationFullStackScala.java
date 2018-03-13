@@ -1,4 +1,4 @@
-package lasselle.deployeur;
+package lasselle.deployeur; // lasselle.deployeur.InitialisationFullStackScala
 
 import java.io.File;
 import java.io.IOException;

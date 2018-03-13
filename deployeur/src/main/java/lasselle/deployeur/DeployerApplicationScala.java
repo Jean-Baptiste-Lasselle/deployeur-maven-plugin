@@ -78,6 +78,7 @@ import lasselle.ssh.operations.elementaires.JiblExecSansFin;
  * 
  * 
  * 
+ * 
  * ********************************************************************************************************************************
  * 
  * 
@@ -116,7 +117,7 @@ public class DeployerApplicationScala extends AbstractMojo {
 	String ops_lx_userpwd = null;
 
 	/**
-	 * Ce plugin permet de déployer uen application scala dont le code source se
+	 * Ce plugin permet de déployer une application scala dont le code source se
 	 * trouve versioné par le repo de'URL
 	 * {@see DeploiementScala#URL_REPO_CODE_SOURCE_APP_SCALA}
 	 * 
@@ -232,21 +233,30 @@ public class DeployerApplicationScala extends AbstractMojo {
 		 */
 		this.faireCommitAndPushDeploiement();
 		/**
-		 * 4. Avec JSch je réalise l'exécution de la recette de montée de la cible de déploiement
+		 * 4. Si un process SBT existe, je le stoppe, pour le re-démarrer
+		 * Cela me permet de recommencer " de zéro" à partir de la nouvelle version de code.
+		 */
+		String nomFichierTemporaire = "lesnumerospidsbt";
+		JiblExec.executeCetteCommande("rm -rf " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("ps -ef | grep '[s]bt'| awk '{print $2}' >> " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("while read pidprocesssbt; do  kill -9 $pidprocesssbt; done < " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+
+		/**
+		 * 5. Avec JSch je réalise l'exécution de la recette de montée de la cible de déploiement
 		 * 
 		 *  => Très important à noter:
 		 *  
 		 * TODO: l'utilisateur linux qui doit éxécuter cette recette de déploiement est l'utilisateur "comissioner".
 		 * Ce doit être un utiloisateur différent de l'utilisateur linux  que le deployeur-plugin utilise.
 		 */
-		
-		JiblExec.executeCetteCommande("rm -rf $HOME/deploiements-app-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("mkdir -p $HOME/deploiements-app-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("git clone https://github.com/Jean-Baptiste-Lasselle/lauriane $HOME/deploiements-app-scala", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("chmod +x $HOME/deploiements-app-scala/recette-deploiement-application-scala.sh", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		String nomRepertoireOperations = "$HOME/deploiements-app-scala";
+		JiblExec.executeCetteCommande("rm -rf " + nomRepertoireOperations, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("mkdir -p " + nomRepertoireOperations, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("git clone https://github.com/Jean-Baptiste-Lasselle/lauriane " + nomRepertoireOperations, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("chmod +x " + nomRepertoireOperations + "/recette-deploiement-application-scala.sh", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		// J'exécute la recette de déploiement spécifique à l'OS de la cible de déploiement.
 		// Je dois exécuter "sans fin", parce que le process s'exéctant suite à la commande sbt ~run ne se termine jamais. 
-		JiblExecSansFin.executeCetteCommande("$HOME/deploiements-app-scala/recette-deploiement-application-scala.sh " + this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + " " + this.repertoireAppScalaDsCible, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExecSansFin.executeCetteCommande(nomRepertoireOperations + "/recette-deploiement-application-scala.sh " + this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + " " + this.repertoireAppScalaDsCible, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		/**
 		 * 6. Je fais un petit affichage récapitulatif
 		 * 
