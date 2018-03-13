@@ -234,7 +234,7 @@ public class ExecuterBuildApplicationScala extends AbstractMojo implements Compo
 		this.faireCommitAndPushCodeSource();
 		
 		String URI_REPO_RECETTES = "https://github.com/Jean-Baptiste-Lasselle/lauriane";
-		String defintionENV = "export NOM_REP_BUILD_COURANT=$HOME/builds-app-scala/$(date +\"%d-%m-%Y-%HHeures%Mmin%SSec\"); export REPERTOIRE_PROCHAIN_BUILD=" + REPERTOIRE_PROCHAIN_BUILD + "; ";
+		String defintionENV = "export NOM_REP_BUILD_COURANT=$HOME/builds-app-scala/$(date +\"%d-%m-%Y-%HHeures%Mmin%SSec\"); export REPERTOIRE_PROCHAIN_BUILD=" + REPERTOIRE_PROCHAIN_BUILD;
 //		String commandeDeBuild = defintionENV + "&& rm -rf $NOM_REP_BUILD_COURANT && mkdir -p $NOM_REP_BUILD_COURANT && git clone " + URI_REPO_RECETTES  + " $NOM_REP_BUILD_COURANT && cd $NOM_REP_BUILD_COURANT && sbt package; ";
 		String commandeDeBuild = defintionENV + "&& rm -rf $NOM_REP_BUILD_COURANT && mkdir -p $NOM_REP_BUILD_COURANT && git clone " + this.URL_REPO_CODE_SOURCE_APP_SCALA  + " $NOM_REP_BUILD_COURANT && cd $NOM_REP_BUILD_COURANT && sbt stage && cp $NOM_REP_BUILD_COURANT/target/universal/stage/bin/software-factory $REPERTOIRE_PROCHAIN_BUILD";
 		
