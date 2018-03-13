@@ -820,7 +820,7 @@ public class DeployerApplicationScala extends AbstractMojo {
 		
 		Iterable<PushResult> resultatsPush = null;
 		try {
-			resultatsPush = repoCodeSrcAppScala.push().setRemote(this.URL_REPO_CODE_SOURCE_APP_SCALA).setCredentialsProvider( new UsernamePasswordCredentialsProvider( this.ops_git_username, this.ops_git_userpwd ) ).call();
+			resultatsPush = repoCodeSrcAppScala.push().setRemote(this.URL_REPO_CODE_SOURCE_APP_SCALA).setCredentialsProvider( new UsernamePasswordCredentialsProvider( this.ops_scm_git_username, this.ops_scm_git_userpwd ) ).call();
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
 			throw new MojoExecutionException(" Problème au PUSH du repo local " + "[" + this.repertoireScala + "]" + " vers " + "[" + this.URL_REPO_CODE_SOURCE_APP_SCALA + "]", e);

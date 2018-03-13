@@ -186,7 +186,12 @@ public class ExecuterBuildApplicationScala extends AbstractMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-
+		
+		/**
+		 * 0. Demander interactive des credentials, pour assurer que les données de
+		 * sécurité ne soient jamais présentes dans le référentiel de versionning du pom.xml
+		 */
+		this.demanderMotDePasseRepoGitCodeSource();
 		
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
@@ -204,14 +209,20 @@ public class ExecuterBuildApplicationScala extends AbstractMojo {
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" +++	VALEUR this.ops_lx_userpwd: " + this.ops_lx_userpwd + " ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
+		System.out.println(" +++	VALEUR this.ops_git_username: " + this.ops_git_username + " ");
+		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
+		System.out.println(" +++	VALEUR this.ops_git_userpwd: " + this.ops_git_userpwd + " ");
+		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
+		System.out.println(" +++	VALEUR this.repertoireScala: " + this.repertoireScala + " ");
+		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
+		System.out.println(" +++	VALEUR this.URL_REPO_CODE_SOURCE_APP_SCALA: " + this.URL_REPO_CODE_SOURCE_APP_SCALA + " ");
+		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
+		
+		
 		
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
 		System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ");
-		/**
-		 * 0. Demander interactive des credentials, pour assurer que les données de
-		 * sécurité ne soient jamais présentes dans le référentiel de versionning du pom.xml
-		 */
-		this.demanderMotDePasseRepoGitCodeSource();
+
 		/**
 		 * 1. Initialiser le positionnement de version du code source de l'app. dans le répertoire {@see DeploiementScala#repertoireScala}
 		 */
@@ -541,7 +552,7 @@ public class ExecuterBuildApplicationScala extends AbstractMojo {
 		
 		Iterable<PushResult> resultatsPush = null;
 		try {
-			resultatsPush = repoCodeSrcAppScala.push().setRemote(this.URL_REPO_CODE_SOURCE_APP_SCALA).setCredentialsProvider( new UsernamePasswordCredentialsProvider( this.ops_git_username, this.ops_git_userpwd ) ).call();
+			resultatsPush = repoCodeSrcAppScala.push().setRemote(this.URL_REPO_CODE_SOURCE_APP_SCALA).setCredentialsProvider( new UsernamePasswordCredentialsProvider( this.ops_scm_git_username, this.ops_scm_git_userpwd ) ).call();
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
 			throw new MojoExecutionException(" Problème au PUSH du repo local " + "[" + this.repertoireScala + "]" + " vers " + "[" + this.URL_REPO_CODE_SOURCE_APP_SCALA + "]", e);
