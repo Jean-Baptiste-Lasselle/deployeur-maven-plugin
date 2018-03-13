@@ -86,7 +86,7 @@ import lasselle.ssh.operations.elementaires.JiblExecSansFin;
  *
  */
 @Mojo(name = "deploy-scala-app")
-public class DeployerApplicationScala extends AbstractMojo {
+public class DeployerApplicationScala extends AbstractMojo implements ComposantDePipeLineScala {
 
 	/**
 	 * ********************************************************************************************************************************
@@ -233,12 +233,12 @@ public class DeployerApplicationScala extends AbstractMojo {
 		 */
 		this.faireCommitAndPushDeploiement();
 		/**
-		 * 4. Si un process SBT existe, je le stoppe, pour le re-démarrer
+		 * 4. Si un process nommé "software-factory" existe, je le stoppe, pour le re-démarrer
 		 * Cela me permet de recommencer " de zéro" à partir de la nouvelle version de code.
 		 */
 		String nomFichierTemporaire = "lesnumerospidsbt";
 		JiblExec.executeCetteCommande("rm -rf " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande("ps -ef | grep '[s]bt'| awk '{print $2}' >> " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande("ps -ef | grep '[s]oftware-factory'| awk '{print $2}' >> " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		JiblExec.executeCetteCommande("while read pidprocesssbt; do  kill -9 $pidprocesssbt; done < " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		JiblExec.executeCetteCommande("rm -rf " + nomFichierTemporaire, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		/**
@@ -252,11 +252,14 @@ public class DeployerApplicationScala extends AbstractMojo {
 		String nomRepertoireOperations = "$HOME/deploiements-app-scala";
 		JiblExec.executeCetteCommande("rm -rf " + nomRepertoireOperations, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		JiblExec.executeCetteCommande("mkdir -p " + nomRepertoireOperations, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+//		JiblExec.executeCetteCommande("cp " + nomRepertoireOperations, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		
+		
 		JiblExec.executeCetteCommande("git clone https://github.com/Jean-Baptiste-Lasselle/lauriane " + nomRepertoireOperations, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		JiblExec.executeCetteCommande("chmod +x " + nomRepertoireOperations + "/recette-deploiement-application-scala.sh", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		// J'exécute la recette de déploiement spécifique à l'OS de la cible de déploiement.
 		// Je dois exécuter "sans fin", parce que le process s'exéctant suite à la commande sbt ~run ne se termine jamais. 
-		JiblExecSansFin.executeCetteCommande(nomRepertoireOperations + "/recette-deploiement-application-scala.sh " + this.URL_REPO_GIT_ASSISTANT_DEPLOIEMENTS + " " + this.repertoireAppScalaDsCible, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExecSansFin.executeCetteCommande(nomRepertoireOperations + "/recette-deploiement-application-scala.sh " + REPERTOIRE_PROCHAIN_BUILD + " " + this.repertoireAppScalaDsCible, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		/**
 		 * 6. Je fais un petit affichage récapitulatif
 		 * 

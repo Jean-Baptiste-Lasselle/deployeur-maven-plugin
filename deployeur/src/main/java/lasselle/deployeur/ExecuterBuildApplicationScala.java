@@ -83,7 +83,7 @@ import lasselle.ssh.operations.elementaires.JiblExecSansFin;
  *
  */
 @Mojo(name = "build-scala-app")
-public class ExecuterBuildApplicationScala extends AbstractMojo {
+public class ExecuterBuildApplicationScala extends AbstractMojo implements ComposantDePipeLineScala {
 	private Git repoGitLocalCodeSourceScala = null;
 	/**
 	 * ********************************************************************************************************************************
@@ -234,13 +234,12 @@ public class ExecuterBuildApplicationScala extends AbstractMojo {
 		this.faireCommitAndPushCodeSource();
 		
 		String URI_REPO_RECETTES = "https://github.com/Jean-Baptiste-Lasselle/lauriane";
-		String NOM_REP_BUILD_COURANTOperations1 = "$HOME/builds-app-scala";
-		String defintionENV = "export NOM_REP_BUILD_COURANT=$HOME/builds-app-scala/$(date +\"%d-%m-%Y-%HHeures%Mmin%SSec\") ";
+		String defintionENV = "export NOM_REP_BUILD_COURANT=$HOME/builds-app-scala/$(date +\"%d-%m-%Y-%HHeures%Mmin%SSec\"); export REPERTOIRE_PROCHAIN_BUILD=" + REPERTOIRE_PROCHAIN_BUILD + "; ";
 //		String commandeDeBuild = defintionENV + "&& rm -rf $NOM_REP_BUILD_COURANT && mkdir -p $NOM_REP_BUILD_COURANT && git clone " + URI_REPO_RECETTES  + " $NOM_REP_BUILD_COURANT && cd $NOM_REP_BUILD_COURANT && sbt package; ";
-		String commandeDeBuild = defintionENV + "&& rm -rf $NOM_REP_BUILD_COURANT && mkdir -p $NOM_REP_BUILD_COURANT && git clone " + this.URL_REPO_CODE_SOURCE_APP_SCALA  + " $NOM_REP_BUILD_COURANT && cd $NOM_REP_BUILD_COURANT && sbt dist; ";
+		String commandeDeBuild = defintionENV + "&& rm -rf $NOM_REP_BUILD_COURANT && mkdir -p $NOM_REP_BUILD_COURANT && git clone " + this.URL_REPO_CODE_SOURCE_APP_SCALA  + " $NOM_REP_BUILD_COURANT && cd $NOM_REP_BUILD_COURANT && sbt stage && cp $NOM_REP_BUILD_COURANT/target/universal/stage/bin/software-factory $REPERTOIRE_PROCHAIN_BUILD";
 		
 		JiblExec.executeCetteCommande(commandeDeBuild, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande(" echo \"Petit Test Variables ENV avec JSch JIBL (les variables d'environnement ne devraient pas survivire à la fermeture de session SSH): [NOM_REP_BUILD_COURANT=$NOM_REP_BUILD_COURANT]\"", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+//		JiblExec.executeCetteCommande(" echo \"Petit Test Variables ENV avec JSch JIBL (les variables d'environnement ne devraient pas survivire à la fermeture de session SSH): [NOM_REP_BUILD_COURANT=$NOM_REP_BUILD_COURANT]\"", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 //		JiblExec.executeCetteCommande("git clone " + URI_REPO_RECETTES  + " $NOM_REP_BUILD_COURANT;" , adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 
 //		JiblExec.executeCetteCommande(" cd $NOM_REP_BUILD_COURANT && sbt package; ", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
