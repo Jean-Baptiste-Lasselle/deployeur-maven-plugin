@@ -233,12 +233,27 @@ public class ExecuterBuildApplicationScala extends AbstractMojo implements Compo
 		 */
 		this.faireCommitAndPushCodeSource();
 		
-		String URI_REPO_RECETTES = "https://github.com/Jean-Baptiste-Lasselle/lauriane";
-		String defintionENV = "export NOM_REP_BUILD_COURANT=$HOME/builds-app-scala/$(date +\"%d-%m-%Y-%HHeures%Mmin%SSec\"); export REPERTOIRE_PROCHAIN_BUILD=" + REPERTOIRE_PROCHAIN_BUILD;
-//		String commandeDeBuild = defintionENV + "&& rm -rf $NOM_REP_BUILD_COURANT && mkdir -p $NOM_REP_BUILD_COURANT && git clone " + URI_REPO_RECETTES  + " $NOM_REP_BUILD_COURANT && cd $NOM_REP_BUILD_COURANT && sbt package; ";
-		String commandeDeBuild = defintionENV + "&& rm -rf $NOM_REP_BUILD_COURANT && mkdir -p $NOM_REP_BUILD_COURANT && git clone " + this.URL_REPO_CODE_SOURCE_APP_SCALA  + " $NOM_REP_BUILD_COURANT && cd $NOM_REP_BUILD_COURANT && sbt stage && cp $NOM_REP_BUILD_COURANT/target/universal/stage/bin/software-factory $REPERTOIRE_PROCHAIN_BUILD";
 		
-		JiblExec.executeCetteCommande(commandeDeBuild, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		String URI_REPO_RECETTES = "https://github.com/Jean-Baptiste-Lasselle/lauriane";
+		String defintionENV = "export NOM_REP_BUILD_COURANT=$HOME/builds-app-scala/$(date +\"%d-%m-%Y-%HHeures%Mmin%SSec\"); export REPERTOIRE_PROCHAIN_BUILD=" + REPERTOIRE_PROCHAIN_BUILD + ";";
+
+//		String commandeDeBuild = defintionENV + " && rm -rf $NOM_REP_BUILD_COURANT ; mkdir -p $NOM_REP_BUILD_COURANT ";
+		String commandeDeBuild = defintionENV + " rm -rf $NOM_REP_BUILD_COURANT ; mkdir -p $NOM_REP_BUILD_COURANT;";
+		
+//		String commandeDeBuild2 = defintionENV + " && git clone " + this.URL_REPO_CODE_SOURCE_APP_SCALA  + " $NOM_REP_BUILD_COURANT";
+		String commandeDeBuild2 = " git clone \"" + this.URL_REPO_CODE_SOURCE_APP_SCALA  + "\" $NOM_REP_BUILD_COURANT/ ;";
+		
+//		String commandeDeBuild3 = defintionENV + " && cd $NOM_REP_BUILD_COURANT;sbt stage ";
+		String commandeDeBuild3 = " cd $NOM_REP_BUILD_COURANT;sbt stage;";
+		
+//		String commandeDeBuild4 = defintionENV + " && rm -rf $REPERTOIRE_PROCHAIN_BUILD ; mkdir -p $REPERTOIRE_PROCHAIN_BUILD ; cp $NOM_REP_BUILD_COURANT/target/universal/stage/* $REPERTOIRE_PROCHAIN_BUILD";
+		String commandeDeBuild4 = " rm -rf $REPERTOIRE_PROCHAIN_BUILD ; mkdir -p $REPERTOIRE_PROCHAIN_BUILD ; cp -rf $NOM_REP_BUILD_COURANT/target/universal/stage/* $REPERTOIRE_PROCHAIN_BUILD;";
+		
+		JiblExec.executeCetteCommande(" echo 'BUILD SCALA - >> PRESSEZ LA TOUCHE ENTREE DE VOTRE CLAVIER POUR DEMARRER LE BUILD';", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande(commandeDeBuild +commandeDeBuild2 + commandeDeBuild3 +commandeDeBuild4, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande(" echo 'BUILD SCALA - FIN';", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		
+		
 //		JiblExec.executeCetteCommande(" echo \"Petit Test Variables ENV avec JSch JIBL (les variables d'environnement ne devraient pas survivire à la fermeture de session SSH): [NOM_REP_BUILD_COURANT=$NOM_REP_BUILD_COURANT]\"", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 //		JiblExec.executeCetteCommande("git clone " + URI_REPO_RECETTES  + " $NOM_REP_BUILD_COURANT;" , adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 
