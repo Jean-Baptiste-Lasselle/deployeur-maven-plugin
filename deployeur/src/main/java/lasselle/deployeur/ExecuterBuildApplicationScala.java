@@ -249,9 +249,9 @@ public class ExecuterBuildApplicationScala extends AbstractMojo implements Compo
 //		String commandeDeBuild4 = defintionENV + " && rm -rf $REPERTOIRE_PROCHAIN_BUILD ; mkdir -p $REPERTOIRE_PROCHAIN_BUILD ; cp $NOM_REP_BUILD_COURANT/target/universal/stage/* $REPERTOIRE_PROCHAIN_BUILD";
 		String commandeDeBuild4 = " rm -rf $REPERTOIRE_PROCHAIN_BUILD ; mkdir -p $REPERTOIRE_PROCHAIN_BUILD ; cp -rf $NOM_REP_BUILD_COURANT/target/universal/stage/* $REPERTOIRE_PROCHAIN_BUILD;";
 		
-		JiblExec.executeCetteCommande(" echo 'BUILD SCALA - >> PRESSEZ LA TOUCHE ENTREE DE VOTRE CLAVIER POUR DEMARRER LE BUILD';", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande(" echo \"BUILD SCALA - \\>\\> PRESSEZ LA TOUCHE ENTREE DE VOTRE CLAVIER POUR DEMARRER LE BUILD\";", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		JiblExec.executeCetteCommande(commandeDeBuild +commandeDeBuild2 + commandeDeBuild3 +commandeDeBuild4, adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
-		JiblExec.executeCetteCommande(" echo 'BUILD SCALA - FIN';", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
+		JiblExec.executeCetteCommande(" echo \"BUILD SCALA - FIN\";", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
 		
 		
 //		JiblExec.executeCetteCommande(" echo \"Petit Test Variables ENV avec JSch JIBL (les variables d'environnement ne devraient pas survivire à la fermeture de session SSH): [NOM_REP_BUILD_COURANT=$NOM_REP_BUILD_COURANT]\"", adresseIPcibleDeploiement, this.ops_lx_username, this.ops_lx_userpwd);
